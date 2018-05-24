@@ -23,11 +23,6 @@ layout: default
           <li class="email"><a href="mailto:sheludkoartem@gmail.com"><i class="fa fa-envelope-o" aria-hidden="true"></i> sheludkoartem@gmail.com</a></li>
         {% endif %}
 
-        {% if site.phone %}
-          <li class="phone"><a href="tel:{{site.phone}}"><i class="fa fa-phone"></i> {{site.phone}}</a></li>
-        {% else %}
-          <li class="phone"><a href="tel:044 825 5523"><i class="fa fa-phone" aria-hidden="true"></i> 044 825 5523</a></li>
-        {% endif %}
 
         {% if site.website %}
           <li class="website"><a href="http://{{site.website}}" target="_blank"><i class="fa fa-globe"></i> {{site.website}}</a></li>
@@ -35,11 +30,6 @@ layout: default
         <li class="website"><a href="http://artemsheludko.pw" target="_blank"><i class="fa fa-globe" aria-hidden="true"></i> artemsheludko.pw</a></li>
         {% endif %}
 
-        {% if site.linkedin %}
-          <li class="linkedin"><a href="https://in.linkedin.com/in/{{site.linkedin}}" target="_blank"><i class="fa fa-linkedin"></i> linkedin.com/in/{{site.linkedin}}</a></li>
-        {% else %}
-        <li class="linkedin"><a href="https://in.linkedin.com/" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i> linkedin.com</a></li>
-        {% endif %}
 
         {% if site.github %}
           <li class="github"><a href="http://github.com/{{site.github}}" target="_blank"><i class="fa fa-github"></i> github.com/{{site.github}}</a></li>

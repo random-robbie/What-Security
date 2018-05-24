@@ -1,0 +1,52 @@
+title: What-Secuirty
+description: > # this means to ignore newlines until "baseurl:"
+  Write an awesome description for your new site here. You can edit this
+  line in _config.yml. It will appear in your document head meta (for
+  Google search results) and in your feed.xml site description.
+baseurl: "/ # the subpath of your site, e.g. /blog
+url: "https://www.what-security.co.uk" # the base hostname & protocol for your site, e.g. http://example.com
+permalink: ':title/'
+blog_theme: light
+
+# Profile information
+name: Robert Wiggins
+tagline: IT Guy & Shodan Searcher
+about-description: # Add Discription
+pic: 79.jpg  # Place a 200x200 picture inside /assets/img/ folder and provide the name of the file below
+
+# Contact links
+email: txt3rob@gmail.com # Add your Email address
+phone:  # Add your Phone number
+website: what-security.co.uk # Add your website, do not add http://
+linkedin: # Add your Linkedin handle
+github: random-robbie # Add your Github handle
+twitter: '@random_robbie' # Add your Twitter handle
+
+# Tracker
+analytics:
+
+# Comments
+discus-identifier: # Add your Disqus identifier
+
+# Important settings
+assets:
+  sources:
+    - assets/fonts
+    - assets/img
+    - assets/js
+    - assets/stylesheets
+
+# Build settings
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+
+gems:
+  - jekyll-feed
+  - jekyll-assets
+exclude:
+  - Gemfile
+  - Gemfile.lock
+
+include: [_pages]

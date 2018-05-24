@@ -1,6 +1,6 @@
 title: What-Secuirty
 description: About Security
-baseurl: "/ # the subpath of your site, e.g. /blog
+baseurl: "/"
 url: https://www.what-security.co.uk
 permalink: ':title/'
 blog_theme: light

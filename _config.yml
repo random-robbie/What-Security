@@ -8,22 +8,20 @@ blog_theme: light
 # Profile information
 name: Robert Wiggins
 tagline: IT Guy & Shodan Searcher
-about-description: # Add Discription
-pic: 79.jpg  # Place a 200x200 picture inside /assets/img/ folder and provide the name of the file below
+about-description: I am a full time IT Guy and a bug bounty enthusiast.
+pic: 79.jpg 
 
 # Contact links
-email: txt3rob@gmail.com # Add your Email address
-phone:  # Add your Phone number
-website: what-security.co.uk # Add your website, do not add http://
-linkedin: # Add your Linkedin handle
-github: random-robbie # Add your Github handle
-twitter: '@random_robbie' # Add your Twitter handle
+email: txt3rob@gmail.com 
+website: what-security.co.uk 
+github: random-robbie 
+twitter: '@random_robbie'
 
 # Tracker
-analytics:
+#analytics:
 
 # Comments
-discus-identifier: # Add your Disqus identifier
+#discus-identifier: # Add your Disqus identifier
 
 # Important settings
 assets:

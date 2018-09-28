@@ -18,38 +18,7 @@ permalink: /s3/
     </div>
     <div class="contact-contaiver">
    
-         I was recently asked how can I check a s3 bucket with out writing to it to see if it has bad permissions and the answer is a nice simple one.
-<br><br>
-You do need the AWS CLI installed which can be installed via pip.
-<br><br>
-In the command line type the following replacing the airpushmarketing with your bucket name.<br><br>
-        <script src="https://gist.github.com/random-robbie/8acc2c39a275ddb11434787b3a3cd692.js"></script><br><br>
-        If you see the below it’s time to shit the bed and fix that S3 bucket!<br>
-        <script src="https://gist.github.com/random-robbie/98bda1341afae3aede8a81feb77c729c.js"></script><br><br>
-        
-        Login to your AWS console find the bucket and remove public-upload permissions.<br><br>
-        
-        <a href="https://docs.aws.amazon.com/AmazonS3/latest/user-guide/bucket-permissions-check.html">Click her for Amazon how to</a><br><br>
-        
-        
-        
-        
-
-<div align=center><a href='https://i.postimg.cc/vm2rMB9R/Screen-_Shot-2018-02-25-at-07.53.03.png' target='_blank'><img src='https://i.postimg.cc/3yp4F3n9/Screen-_Shot-2018-02-25-at-07.53.03.png' border='0' alt='Screen-_Shot-2018-02-25-at-07.53.03'/></a><br><br></div>
-I keep seeing something like this during some of my scans and i’ve come to find that you can hijack that file and do what you want with it despite the bucket not having the upload permissions.<br><br>
-<br><br>
-I created a quck script to show you how you can do a POC for a bounty program with out altering the files it’s self.<br><br>
-<br><br>
-<script src="https://gist.github.com/random-robbie/9c49f5d6c92884feb7b366802566b41d.js"></script>
-simply save it and then run <br><br>
-<br><br>  
-<script src="https://gist.github.com/random-robbie/82a0fbdbda1443988cddab604c75ed01.js"></script>
-<br><br>   
-This will dump the json out showing you having full write permissions to that object.
-        
-        <script src="https://gist.github.com/random-robbie/e2a9add2f2e5001e4bc9998fc90d9274.js"></script>
-       
-          
+         <script src="https://gist.github.com/random-robbie/43eb7900c9da8519ef31b9de260e500e.js"></script>
     </div>
   </div>
 </div>

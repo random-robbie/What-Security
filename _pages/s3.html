@@ -22,10 +22,10 @@ permalink: /s3/
 <br><br>
 You do need the AWS CLI installed which can be installed via pip.
 <br><br>
-In the command line type the following replacing the airpushmarketing with your bucket name.
+In the command line type the following replacing the airpushmarketing with your bucket name.<br><br>
         <script src="https://gist.github.com/random-robbie/8acc2c39a275ddb11434787b3a3cd692.js"></script><br><br>
         If you see the below it’s time to shit the bed and fix that S3 bucket!
-        <script src="https://gist.github.com/random-robbie/98bda1341afae3aede8a81feb77c729c.js"></script>
+        <script src="https://gist.github.com/random-robbie/98bda1341afae3aede8a81feb77c729c.js"></script><br><br>
         
         at this point login to your AWS console find the bucket and remove public-upload permissions.
         
@@ -35,16 +35,16 @@ In the command line type the following replacing the airpushmarketing with your 
 
 
 I keep seeing something like this during some of my scans and i’ve come to find that you can hijack that file and do what you want with it despite the bucket not having the upload permissions.<br><br>
-
+<br><br>
 I created a quck script to show you how you can do a POC for a bounty program with out altering the files it’s self.<br><br>
-
+<br><br>
 simply save it and then run <br><br>
-      
+<br><br>  
 object_poc.sh bucketname filetoaddpermissionsto yourawsemail@address.com
 
-
+<br><br>
 <script src="https://gist.github.com/random-robbie/9c49f5d6c92884feb7b366802566b41d.js"></script><br><br>
-        
+<br><br>   
 This will dump the json out showing you having full write permissions to that object.
        
           </ul>

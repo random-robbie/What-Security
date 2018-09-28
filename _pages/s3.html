@@ -18,7 +18,16 @@ permalink: /s3/
     </div>
     <div class="contact-contaiver">
       <ul class="contact-list">
-        <script src="https://gist.github.com/random-robbie/9c77661038e9d597bbd98db275e21c70.js"></script><br><br>
+         I was recently asked how can I check a s3 bucket with out writing to it to see if it has bad permissions and the answer is a nice simple one.
+
+You do need the AWS CLI installed which can be installed via pip.
+
+In the command line type the following replacing the airpushmarketing with your bucket name.
+        <script src="https://gist.github.com/random-robbie/8acc2c39a275ddb11434787b3a3cd692.js"></script>
+        If you see the below it’s time to shit the bed and fix that S3 bucket!
+        <script src="https://gist.github.com/random-robbie/98bda1341afae3aede8a81feb77c729c.js"></script>
+        
+        at this point login to your AWS console find the bucket and remove public-upload permissions
        
           </ul>
     </div>

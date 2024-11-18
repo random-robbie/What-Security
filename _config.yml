@@ -41,3 +41,5 @@ exclude:
   - Gemfile.lock
 
 include: [_pages]
+include:
+  - ".well-known"

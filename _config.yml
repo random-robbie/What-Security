@@ -1,4 +1,5 @@
-title: What-Secuirty
+# Site settings
+title: What-Security
 description: About Security
 baseurl: "/"
 url: https://www.what-security.co.uk
@@ -16,8 +17,8 @@ email: rob@what-security.co.uk
 website: what-security.co.uk 
 github: random-robbie 
 twitter: '@random_robbie'
-
-
+hackerone: txt3rob
+bugcrowd: txt3rob
 
 # Important settings
 assets:
@@ -28,18 +29,17 @@ assets:
     - assets/stylesheets
 
 # Build settings
+plugins:
+  - jekyll-feed
+  - jekyll-assets
+  
 exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
+  - node_modules
+  - vendor
 
-gems:
-  - jekyll-feed
-  - jekyll-assets
-exclude:
-  - Gemfile
-  - Gemfile.lock
-
-include: [_pages]
 include:
-  - ".well-known"
+  - _pages
+  - .well-known

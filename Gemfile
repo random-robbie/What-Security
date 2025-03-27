@@ -19,7 +19,7 @@ end
 
 # Development tools
 group :development do
-  gem "webrick", "~> 1.8.1" # Required for Ruby 3+
+  gem "webrick", "~> 1.8.2" # Required for Ruby 3+
 end
 
 # Platform specific gems

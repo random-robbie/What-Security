@@ -1,14 +1,10 @@
 source "https://rubygems.org"
 ruby RUBY_VERSION
 
-# Use GitHub Pages for hosting
-gem "github-pages", group: :jekyll_plugins
+# Latest Jekyll
+gem "jekyll", "~> 4.3.2"
 
-# If you prefer to use the latest Jekyll directly instead of GitHub Pages
-# uncomment this line and comment out the github-pages gem above
-# gem "jekyll", "~> 4.3.2"
-
-# Core plugins
+# Plugins
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.17.0"
   gem "jekyll-assets", "~> 3.0.12"
@@ -19,7 +15,7 @@ end
 
 # Development tools
 group :development do
-  gem "webrick", "~> 1.8.1" # Required for Ruby 3+
+  gem "webrick", "~> 1.8.1"
 end
 
 # Platform specific gems

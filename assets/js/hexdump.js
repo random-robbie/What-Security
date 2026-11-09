@@ -121,6 +121,7 @@
         print("  ls                  list files");
         print("  cat <file>          print a file (try: disclosures.txt, cli-tips.txt, contact.txt)");
         print("  skills              capability list");
+        print("  projects            top GitHub repositories");
         print("  media               recent press coverage");
         print("  theme <name>        " + THEMES.join(" | "));
         print("  contact             how to reach me");
@@ -131,6 +132,15 @@
         break;
       case "ls":
         print(Object.keys(DATA.files).join("   ") + "   about.md", "t-ok");
+        break;
+      case "projects":
+        print("top repositories (github.com/random-robbie):", "t-ok");
+        print("  bruteforce-lists    1,448 stars   wordlists for brute-forcing");
+        print("  My-Shodan-Scripts   1,158 stars   shodan search scripts");
+        print("  keywords              377 stars   exposed secret keyword lists");
+        print("  bugbounty-scans       311 stars   aquatone recon results");
+        print("  Jira-Scan             193 stars   CVE-2017-9506 SSRF scanner");
+        print("  full list: /projects/");
         break;
       case "cat":
         if (DATA.files[arg]) print(DATA.files[arg]);

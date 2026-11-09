@@ -382,7 +382,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .post-meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
 .post-content { line-height: 1.8; }
 .post-content h2, .post-content h3 { color: var(--accent); }
-.post-content pre {
+.post-content pre, .command-section pre {
   background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -390,8 +390,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   overflow-x: auto;
   font-size: 13px;
 }
-.post-content code { color: var(--accent); }
-.post-content pre code { color: var(--fg); }
+.post-content code, .command-section code { color: var(--accent); }
+.post-content pre code, .command-section pre code { color: var(--fg); }
+.command-section { margin-bottom: 36px; }
+.command-section h3 { color: var(--accent); }
 .post-content blockquote {
   margin: 24px 0;
   padding: 14px 18px;

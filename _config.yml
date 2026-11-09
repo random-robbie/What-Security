@@ -20,18 +20,9 @@ twitter: '@random_robbie'
 hackerone: txt3rob
 bugcrowd: txt3rob
 
-# Important settings
-assets:
-  sources:
-    - assets/fonts
-    - assets/img
-    - assets/js
-    - assets/stylesheets
-
 # Build settings
 plugins:
   - jekyll-feed
-  - jekyll-assets
   
 exclude:
   - Gemfile

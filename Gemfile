@@ -1,21 +1,12 @@
 source "https://rubygems.org"
 ruby RUBY_VERSION
 
-# Latest Jekyll
-gem "jekyll", "~> 4.3.2"
-
-# Plugins
-group :jekyll_plugins do
-  gem "jekyll-feed", "~> 0.17.0"
-  gem "jekyll-assets", "~> 3.0.12"
-  gem "jekyll-seo-tag", "~> 2.8.0"
-  gem "jekyll-sitemap", "~> 1.4.0"
-  gem "jekyll-paginate", "~> 1.1.0"
-end
+# Matches the GitHub Pages build environment exactly
+gem "github-pages", group: :jekyll_plugins
 
 # Development tools
 group :development do
-  gem "webrick", "~> 1.8.1"
+  gem "webrick"
 end
 
 # Platform specific gems

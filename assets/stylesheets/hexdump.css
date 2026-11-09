@@ -29,7 +29,7 @@
   --bg: #242933;
   --bg-deep: #1d222b;
   --fg: #dce3ec;
-  --muted: #7f8c9d;
+  --muted: #93a5b7;
   --accent: #88c0d0;
   --accent-dim: rgba(136, 192, 208, 0.14);
   --border: rgba(136, 192, 208, 0.22);
@@ -40,7 +40,7 @@
   --bg: #1d2021;
   --bg-deep: #161819;
   --fg: #e2d9c2;
-  --muted: #928374;
+  --muted: #a89984;
   --accent: #fabd2f;
   --accent-dim: rgba(250, 189, 47, 0.14);
   --border: rgba(250, 189, 47, 0.22);
@@ -72,7 +72,7 @@ body {
   background-size: 44px 44px, 44px 44px, auto;
   color: var(--fg);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
@@ -174,7 +174,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .site-header .wrapper { gap: 14px; height: auto; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
   .main-menu { order: 3; flex-basis: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .main-menu ul { gap: 2px; padding-bottom: 4px; }
-  .main-menu a { padding: 6px 10px; font-size: 11.5px; }
+  .main-menu a { padding: 6px 10px; font-size: 12px; }
   .main-menu li.active a::after { left: 10px; right: 10px; }
   .theme-dots { order: 2; margin-left: auto; }
 }
@@ -258,7 +258,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--accent);
   text-shadow: var(--glow);
 }
-.stat-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.stat-label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 
 /* --------------------------------------------------------------------------
    Terminal window
@@ -281,7 +281,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--panel);
 }
 .tl { width: 11px; height: 11px; border-radius: 50%; background: var(--muted); opacity: 0.7; }
-.terminal-title { flex: 1; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.terminal-title { flex: 1; text-align: center; font-size: 12px; color: var(--muted); letter-spacing: 1px; }
 
 .terminal-body {
   padding: 16px;
@@ -306,7 +306,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-size: 13.5px;
   caret-color: var(--accent);
 }
-.terminal-hint { padding: 8px 16px 14px; font-size: 11.5px; color: var(--muted); }
+.terminal-hint { padding: 8px 16px 14px; font-size: 12px; color: var(--muted); }
 .terminal-hint code { color: var(--accent); background: var(--accent-dim); padding: 1px 6px; border-radius: 3px; }
 
 /* --------------------------------------------------------------------------
@@ -347,7 +347,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .card:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-2px); }
 .card-source {
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--accent);

@@ -8,6 +8,22 @@
   source: TechRadar
   url: https://www.techradar.com/pro/security/applebees-forced-to-fix-serious-security-issue-which-exposed-customer-data
   date: 2026-11-01
+- title: "Applebee's patches security flaw exposing customer data"
+  source: SC Media
+  url: https://www.scworld.com/brief/applebees-patches-security-flaw-exposing-customer-data
+  date: 2026-11-01
+- title: "Applebee's App Exposed Customers' Personal Data Through a Hardcoded Database Password"
+  source: Technology.org
+  url: https://www.technology.org/2026/11/02/applebees-app-hardcoded-database-password-customer-data/
+  date: 2026-11-02
+- title: "Applebee's customer data exposed by password left in app"
+  source: Malwarebytes Labs
+  url: https://news.cyberhawkthreatintel.com/article/applebees-customer-data-exposed-password-left-app
+  date: 2026-11-02
+- title: "Applebee's App Exposed Customer Data Through a Database Password Left in Its Code"
+  source: PrivacyAffairs
+  url: https://www.privacyaffairs.com/applebees-app-data-exposure/
+  date: 2026-11
 - title: "Teen phone monitoring app leaked thousands of user passwords"
   source: ZDNet
   url: https://www.zdnet.com/article/teen-phone-monitoring-app-leaks-thousands-of-users-data/
@@ -22,7 +38,7 @@
   date: 2019-03
 - title: "Kubernetes systems being hijacked worldwide"
   source: Binary Edge
-  url: https://blog.binaryedge.io/2018/12/06/kubernetes-being-hijacked-worldwide/
+  url: https://web.archive.org/web/20230528194133/https://blog.binaryedge.io/2018/12/06/kubernetes-being-hijacked-worldwide/
   date: 2018-12-06
 - title: "Honda India left details of 50,000 customers exposed on an AWS S3 server"
   source: BleepingComputer

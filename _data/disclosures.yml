@@ -1,0 +1,44 @@
+- title: "Applebee's exposed customers' personal data after leaving database password in app"
+  source: TechCrunch
+  url: https://techcrunch.com/2026/10/30/applebees-exposed-customers-personal-data-after-leaving-database-password-in-app/
+  date: 2026-10-30
+  featured: true
+  summary: "A hardcoded database password in the Android app gave access to an internal customer database holding names, emails, dates of birth, phone numbers, ZIP codes and veteran status."
+- title: "Applebee's forced to fix serious security issue which exposed customer data"
+  source: TechRadar
+  url: https://www.techradar.com/pro/security/applebees-forced-to-fix-serious-security-issue-which-exposed-customer-data
+  date: 2026-11-01
+- title: "Teen phone monitoring app leaked thousands of user passwords"
+  source: ZDNet
+  url: https://www.zdnet.com/article/teen-phone-monitoring-app-leaks-thousands-of-users-data/
+  date: 2018-02
+- title: "Teen phone tracking app leaked thousands of user details unprotected"
+  source: The Telegraph
+  url: https://www.telegraph.co.uk/technology/2018/05/21/teen-phone-tracking-app-leaked-thousands-user-details-unprotected/
+  date: 2018-05-21
+- title: "Honda leaked personal information for more than 50,000 users of its Honda Connect App"
+  source: MacKeeper Security
+  url: https://mackeepersecurity.com/post/honda-leaked-personal-information-from-its-honda-connect-app/
+  date: 2019-03
+- title: "Kubernetes systems being hijacked worldwide"
+  source: Binary Edge
+  url: https://blog.binaryedge.io/2018/12/06/kubernetes-being-hijacked-worldwide/
+  date: 2018-12-06
+- title: "Honda India left details of 50,000 customers exposed on an AWS S3 server"
+  source: BleepingComputer
+  url: https://www.bleepingcomputer.com/news/security/honda-india-left-details-of-50-000-customers-exposed-on-an-aws-s3-server/
+  date: 2019-04
+  featured: true
+- title: "Jira bug exposed private server keys at major companies, researcher finds"
+  source: ZDNet
+  url: https://www.zdnet.com/article/jira-bug-exposed-private-server-keys-at-major-companies-researcher-finds/
+  date: 2019-08-29
+  featured: true
+- title: "Companies are leaking sensitive files via Box accounts"
+  source: ZDNet
+  url: https://www.zdnet.com/article/companies-are-leaking-sensitive-files-via-box-accounts/
+  date: 2019-10
+- title: "Exposed Amazon cloud storage clients get tip-off alerts"
+  source: BBC News
+  url: http://www.bbc.co.uk/news/technology-42839462
+  date: 2018-01-31

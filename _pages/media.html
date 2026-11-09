@@ -4,60 +4,45 @@ layout: default
 permalink: /media/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">Media</h2>
+    <h1 class="page-title">media</h1>
+    <p class="page-intro">Discoveries from the past decade, as reported by the press. {% if site.name %}— {{site.name}}{% endif %}</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      <p>I have made some discoveries in the past and here are a few links to reports on what I have found.</p>
-    </div>
-    <div class="contact-contaiver">
-      <ul class="contact-list">
-          <li class="email"><a href="http://www.bugcrowd.com/txt3rob"><i class="fa fa-globe"></i> My Bugcrowd Account</a></li>
-          <li class="email"><a href="http://www.hackerone.com/txt3rob"><i class="fa fa-globe"></i> My Hackerone Account</a></li>
-          <li class="email"><a href="https://techcrunch.com/2026/10/30/applebees-exposed-customers-personal-data-after-leaving-database-password-in-app/"><i class="fa fa-globe"></i> Applebee's exposed customers' personal data after leaving database password in app</a></li>
-          <li class="email"><a href="http://www.bbc.co.uk/news/technology-42839462"><i class="fa fa-globe"></i> Exposed Amazon cloud storage clients get tip-off alerts</a></li>
-          <li class="email"><a href="https://www.zdnet.com/article/teen-phone-monitoring-app-leaks-thousands-of-users-data/"><i class="fa fa-globe"></i> Teen phone monitoring app leaked thousands of user passwords</a></li>
-          <li class="email"><a href="https://www.telegraph.co.uk/technology/2018/05/21/teen-phone-tracking-app-leaked-thousands-user-details-unprotected/"><i class="fa fa-globe"></i> teen phone tracking app leaked thousands user details unprotected</a></li>
-          <li class="email"><a href="https://mackeepersecurity.com/post/honda-leaked-personal-information-from-its-honda-connect-app/"><i class="fa fa-globe"></i> Honda leaked personal information for more than 50,000 users of its Honda Connect App</a></li>
-          <li class="email"><a href="https://blog.binaryedge.io/2018/12/06/kubernetes-being-hijacked-worldwide/"><i class="fa fa-globe"></i>Kubernetes Systems Being Hihacked</a></li>
-          <li class="email"><a href="https://www.bleepingcomputer.com/news/security/honda-india-left-details-of-50-000-customers-exposed-on-an-aws-s3-server/"><i class="fa fa-globe"></i> Honda India Left Details of 50,000 Customers Exposed on an AWS S3 Server</a></li>
-          <li class="email"><a href="https://www.zdnet.com/article/jira-bug-exposed-private-server-keys-at-major-companies-researcher-finds/"><i class="fa fa-globe"></i> Jira bug exposed private server keys at major companies, researcher finds</a></li>
-          <li class="email"><a href="https://www.zdnet.com/article/companies-are-leaking-sensitive-files-via-box-accounts/"><i class="fa fa-globe"></i>Companies are leaking sensitive files via Box accounts</a></li>
-        <li class="email"><a href="https://securitytrails.com/blog/bug-bounty-hunting"><i class="fa fa-globe"></i>SecurityTrails | #ProTips: Bug Bounty Hunting with Random Robbie</a></li>
-      </ul>
-    </div>
-    <div class="about-description">
-      <p>Security Hall of Fames I am listed in.</p>
-    </div>
-    <div class="contact-contaiver">
-                                 <ul class="contact-list">
-          <li class="website"><a href="https://www.bugcrowd.com/blog/congratulations-to-our-mvp-researchers-in-q3-2019/"><i class="fa fa-globe"></i>Bug Crowd MVP's Q3 2019</a></li>
-          <li class="website"><a href="https://support.apple.com/en-gb/HT201536"><i class="fa fa-globe"></i> Apple Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://contact.security.aol.com/hof/"><i class="fa fa-globe"></i> AOL Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://bugbounty.att.com/hof.php#1Q2018"><i class="fa fa-globe"></i> AT&T Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.autotrader.co.uk/hall-of-fame"><i class="fa fa-globe"></i> AutoTrader Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.altmetric.com/security/"><i class="fa fa-globe"></i> Altmetric Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://cert.europa.eu/cert/newsletter/en/latest_HallOfFame_.html"><i class="fa fa-globe"></i> Cert EU Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="http://www.centurylink.com/aboutus/company-information/security-wall-of-fame.html"><i class="fa fa-globe"></i> CenturyLink Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.dell.com/learn/us/en/04/campaigns/contributors-dell-software-security#campaignTabs-3"><i class="fa fa-globe"></i> Dell Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.google.com/about/appsecurity/hall-of-fame/archive/"><i class="fa fa-globe"></i> Google Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://wiki.scn.sap.com/wiki/pages/viewpage.action?pageId=451071888"><i class="fa fa-globe"></i> SAP Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.symantec.com/connect/pages/security-researcher-wall-fame"><i class="fa fa-globe"></i> Symantec Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://webcache.googleusercontent.com/search?q=cache:nCNsKSxxmUEJ:https://networks.nokia.com/responsible-disclosure+&cd=1&hl=en&ct=clnk&gl=uk"><i class="fa fa-globe"></i> Nokia Researcher Hall of Fame</a></li>      
-          <li class="website"><a href="https://www.microsoft.com/en-us/msrc/researcher-acknowledgments-online-services-archive"><i class="fa fa-globe"></i> Microsoft Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.visma.com/trust-centre/smb/security-and-privacy/operational/responsible-disclosure/hall-of-fame/"><i class="fa fa-globe"></i> Visma Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.freshworks.com/security/responsible-disclosure/"><i class="fa fa-globe"></i> Freshworks Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.motorolasolutions.com/en_us/about/security-vulnerability/hall-of-fame.html"><i class="fa fa-globe"></i> Motorola Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://www.myob.com/au/about/security/report-security-vulnerability"><i class="fa fa-globe"></i> Myob Security Researcher Hall of Fame</a></li>
-          <li class="website"><a href="https://psirt.bosch.com/hall-of-fame/websites-hall-of-fame.html"><i class="fa fa-globe"></i> Bosch Security Researcher Hall of Fame</a></li>
 
-      </ul>
-      </div>
+  <ul class="link-list">
+    {% for item in site.data.disclosures %}
+    <li>
+      <span class="yr">{{ item.date | date: "%Y" }}</span>
+      <span class="src">{{ item.source }}</span>
+      <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="page-heading" style="padding-top: 0;">
+    <h2 class="section-title" style="font-size: clamp(24px,3vw,34px);">Hall of <span class="dot">fame.</span></h2>
+    <p class="page-intro">Programs I am listed in.</p>
+  </div>
+  <div class="hof-grid">
+    <a class="hof-item" href="https://www.bugcrowd.com/blog/congratulations-to-our-mvp-researchers-in-q3-2019/" target="_blank" rel="noopener">Bugcrowd MVP's Q3 2019</a>
+    <a class="hof-item" href="https://support.apple.com/en-gb/HT201536" target="_blank" rel="noopener">Apple</a>
+    <a class="hof-item" href="https://contact.security.aol.com/hof/" target="_blank" rel="noopener">AOL</a>
+    <a class="hof-item" href="https://bugbounty.att.com/hof.php#1Q2018" target="_blank" rel="noopener">AT&amp;T</a>
+    <a class="hof-item" href="https://www.autotrader.co.uk/hall-of-fame" target="_blank" rel="noopener">AutoTrader</a>
+    <a class="hof-item" href="https://www.altmetric.com/security/" target="_blank" rel="noopener">Altmetric</a>
+    <a class="hof-item" href="https://cert.europa.eu/cert/newsletter/en/latest_HallOfFame_.html" target="_blank" rel="noopener">Cert EU</a>
+    <a class="hof-item" href="http://www.centurylink.com/aboutus/company-information/security-wall-of-fame.html" target="_blank" rel="noopener">CenturyLink</a>
+    <a class="hof-item" href="https://www.dell.com/learn/us/en/04/campaigns/contributors-dell-software-security#campaignTabs-3" target="_blank" rel="noopener">Dell</a>
+    <a class="hof-item" href="https://www.google.com/about/appsecurity/hall-of-fame/archive/" target="_blank" rel="noopener">Google</a>
+    <a class="hof-item" href="https://wiki.scn.sap.com/wiki/pages/viewpage.action?pageId=451071888" target="_blank" rel="noopener">SAP</a>
+    <a class="hof-item" href="https://www.symantec.com/connect/pages/security-researcher-wall-fame" target="_blank" rel="noopener">Symantec</a>
+    <a class="hof-item" href="https://www.microsoft.com/en-us/msrc/researcher-acknowledgments-online-services-archive" target="_blank" rel="noopener">Microsoft</a>
+    <a class="hof-item" href="https://www.visma.com/trust-centre/smb/security-and-privacy/operational/responsible-disclosure/hall-of-fame/" target="_blank" rel="noopener">Visma</a>
+    <a class="hof-item" href="https://www.freshworks.com/security/responsible-disclosure/" target="_blank" rel="noopener">Freshworks</a>
+    <a class="hof-item" href="https://www.motorolasolutions.com/en_us/about/security-vulnerability/hall-of-fame.html" target="_blank" rel="noopener">Motorola Solutions</a>
+    <a class="hof-item" href="https://www.myob.com/au/about/security/report-security-vulnerability" target="_blank" rel="noopener">MYOB</a>
+    <a class="hof-item" href="https://psirt.bosch.com/hall-of-fame/websites-hall-of-fame.html" target="_blank" rel="noopener">Bosch</a>
+    <a class="hof-item" href="https://webcache.googleusercontent.com/search?q=cache:nCNsKSxxmUEJ:https://networks.nokia.com/responsible-disclosure+&cd=1&hl=en&ct=clnk&gl=uk" target="_blank" rel="noopener">Nokia</a>
   </div>
 </div>

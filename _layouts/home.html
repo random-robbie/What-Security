@@ -2,35 +2,58 @@
 layout: default
 ---
 
-<div class="home">
-  <div class="page-heading">
-    <h2 class="page-title">Home</h2>
-  </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
+<section class="hero">
+  <div class="wrapper hero-grid">
+    <div>
+      <div class="hero-prompt">
+        <span class="user">robbie@what-security</span> ~ $ whoami --verbose<span class="cursor"></span>
+      </div>
+      <h1 class="hero-name">{{ site.name | split: " " | first }}<br>{{ site.name | split: " " | last }}</h1>
+      <p class="hero-bio">{{ site.tagline }} Bug bounty hunter and vulnerability researcher — disclosed findings to Apple, Google, AT&amp;T, Dell and more. If my domain shows up in your logs, that's legitimate security research.</p>
+      <div class="hero-actions">
+        <a class="term-btn primary" href="{{site.baseurl}}/media/">ls disclosures/</a>
+        <a class="term-btn" href="{{site.baseurl}}/cli/">cat cli-tips.txt</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-value">{{ site.data.disclosures | size }}</div><div class="stat-label">disclosures</div></div>
+        <div><div class="stat-value">17</div><div class="stat-label">halls of fame</div></div>
+        <div><div class="stat-value">10</div><div class="stat-label">years hunting</div></div>
+        <div><div class="stat-value">2016</div><div class="stat-label">since</div></div>
+      </div>
     </div>
-    <h2 class="tagline">{{site.tagline}}</h2>
-    <div class="about-description">
-      <p>Welcome to What Security?</p>
-      
-      <p>I'm a dedicated Cybersecurity Engineer specializing in penetration testing and vulnerability research. With expertise in network security, web application testing, and cloud infrastructure assessment, I help organizations identify and remediate security flaws before they can be exploited.</p>
-      
-      <p>My technical toolkit includes:</p>
-      <ul>
-        <li>Web application security testing (OWASP Top 10)</li>
-        <li>Network infrastructure assessment</li>
-        <li>Cloud security (AWS, Azure, GCP)</li>
-        <li>Docker and Kubernetes security</li>
-        <li>API security testing</li>
-        <li>Mobile application security</li>
-      </ul>
-      
-      <p>I actively participate in responsible disclosure programs and bug bounties to help improve security across the internet. If you've noticed my domain in your logs during security scans, rest assured this is part of legitimate security research.</p>
-      
-      <p>For professional engagements or security concerns, please reach out via email.</p>
-      
-      <p>Find me on: <a href='https://www.hackerone.com/txt3rob'>HackerOne</a> | <a href='https://www.bugcrowd.com/txt3rob'>Bugcrowd</a> | <a href="https://github.com/random-robbie/">GitHub</a></p>
+
+    <div class="terminal">
+      <div class="terminal-titlebar">
+        <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+        <span class="terminal-title">robbie@what-security: ~ — terminal</span>
+      </div>
+      <div class="terminal-body" id="term-body"></div>
+      <div class="terminal-inputline">
+        <span class="terminal-prompt">robbie@what-security ~ $</span>
+        <input class="terminal-input" id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="enter command..." aria-label="Terminal input">
+      </div>
+      <div class="terminal-hint">type a command and press [ENTER] · try: <code>help</code> <code>whoami</code> <code>ls</code> <code>theme gruvbox</code></div>
     </div>
   </div>
-</div>
+</section>
+
+<section class="section">
+  <div class="wrapper">
+    <a class="section-more" href="{{site.baseurl}}/media/">&gt; more coverage</a>
+    <p class="section-kicker">ls disclosures/</p>
+    <h2 class="section-title">Recent <span class="dot">coverage.</span></h2>
+    <p class="section-sub">Security findings written up by the press. Full archive on the <a href="{{site.baseurl}}/media/">media page</a>.</p>
+    <div class="card-grid">
+      {% for item in site.data.disclosures %}
+        {% if item.featured %}
+          <a class="card" href="{{ item.url }}" target="_blank" rel="noopener">
+            <span class="card-source">{{ item.source }}</span>
+            <p class="card-title">{{ item.title }}</p>
+            {% if item.summary %}<p class="card-summary">{{ item.summary }}</p>{% endif %}
+            <p class="card-date">{{ item.date | date: "%b %Y" }}</p>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>

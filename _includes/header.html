@@ -1,14 +1,21 @@
-<header class="header">
-  <h1 class="logo">
-    <a href="{{site.baseurl}}/" class="logo-link">{% if site.name %}{{site.name}}{% else %}Wendell Thomas{% endif %}</a>
-  </h1>
-  <nav class="main-menu">
-    <ul>
-	  <li><a href="{{site.baseurl}}/">Home</a></li>
-	    <li><a href="{{site.baseurl}}/cli/">CLI Tips</a></li>
-      	   <li><a href="{{site.baseurl}}/media/">Media</a></li>
-	   <li><a href="{{site.baseurl}}/howto/">How to</a></li>
-	    <li><a href="{{site.baseurl}}/about/">About Me</a></li>
-    </ul>
-  </nav>
+<header class="site-header">
+  <div class="wrapper">
+    <a href="{{site.baseurl}}/" class="logo-link">What-Security</a>
+    <nav class="main-menu">
+      <ul>
+        <li><a href="{{site.baseurl}}/"><span class="key">[ x ]</span>Home</a></li>
+        <li><a href="{{site.baseurl}}/cli/"><span class="key">[ &gt;_ ]</span>CLI Tips</a></li>
+        <li><a href="{{site.baseurl}}/media/"><span class="key">[ // ]</span>Media</a></li>
+        <li><a href="{{site.baseurl}}/howto/"><span class="key">[ ? ]</span>How to</a></li>
+        <li><a href="{{site.baseurl}}/about/"><span class="key">[ ~ ]</span>About</a></li>
+      </ul>
+    </nav>
+    <div class="theme-dots" title="Switch color theme">
+      <button class="theme-dot active" data-theme="matrix" aria-label="Matrix theme"></button>
+      <button class="theme-dot" data-theme="dracula" aria-label="Dracula theme"></button>
+      <button class="theme-dot" data-theme="nord" aria-label="Nord theme"></button>
+      <button class="theme-dot" data-theme="gruvbox" aria-label="Gruvbox theme"></button>
+      <button class="theme-dot" data-theme="mono" aria-label="Mono theme"></button>
+    </div>
+  </div>
 </header>

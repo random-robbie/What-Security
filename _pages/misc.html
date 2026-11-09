@@ -77,7 +77,7 @@ grep -r "url\|href\|action\|path\|endpoint" --include="*.js" /path/to/js/files
     <div class="command-section">
       <h3>🐳 Docker & Kubernetes</h3>
       <pre><code># List all running containers with ports
-docker ps --format "{{.ID}}\t{{.Names}}\t{{.Ports}}"
+docker ps --format "{% raw %}{{.ID}}\t{{.Names}}\t{{.Ports}}{% endraw %}"
 
 # Get a shell in a running container
 docker exec -it container_name /bin/bash

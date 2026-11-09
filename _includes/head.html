@@ -3,11 +3,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="zcQEK7MeURNi1Lp9dA28K_3tVrjojW8bd96AdxuE8bg" />
-  <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
-  <meta name="description" content="{{ page.description }}">
+  <title>{% if page.title %}{{ page.title | escape }} — {% endif %}{{ site.title | escape }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
 
-  <link rel="shortcut icon" href="{{ "/assets/img/favicon.ico" | prepend: site.baseurl }}">
-  <link href="https://fonts.googleapis.com/css?family=Oswald:400,700|Roboto:400,700" rel="stylesheet">
-  <link rel="stylesheet" href="{{ "/assets/fonts/font-awesome/css/font-awesome.css" | prepend: site.baseurl }}">
-  <link rel="stylesheet" href="{{site.baseurl}}/assets/stylesheets/{% if site.blog_theme == "light" %}light.css{% else %}dark.css{% endif %}">
+  <link rel="shortcut icon" href="{{ "/assets/img/favicon.ico" | relative_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ "/assets/stylesheets/hexdump.css" | relative_url }}">
 </head>

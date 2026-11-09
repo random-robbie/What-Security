@@ -1,22 +1,39 @@
 ---
 layout: default
 ---
-<div class="page-header">
-  <h1 class="page-title">{{page.title}}</h1>
-  <span class="page-list-date">
-    <i class="fa fa-calendar-o" aria-hidden="true"></i> {{ page.date | date: "%B %-d, %Y" }}
-  </span>
-</div>
-<div class="post-container">
-  {% if page.img %}
-   <img class="post-img" src={{ "/assets/img/" | prepend: site.baseurl | append : page.img}} alt="{{page.title}}">
-  {% endif %}
-  <div class="post-content">
-    <article>
-      {% if page.author %}
-      <div class="date-byline"><span><i class="fa fa-calendar-o" aria-hidden="true"></i> {{page.date | date: '%Y, %b %d'}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span><i class="fa fa-pencil-square-o" aria-hidden="true"></i> {{page.author}}</span></div>
-      {% endif %}
-      {{page.content | markdownify}}
-    </article>
-  </div>
+
+<div class="wrapper post-layout">
+  <article class="post">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">{{ page.date | date: "%Y-%m-%d" }}{% if page.author %} · {{ page.author }}{% endif %}</p>
+    <div class="post-content">
+      {{ content }}
+    </div>
+  </article>
+
+  <aside class="sidebar">
+    <div class="sidebar-widget">
+      <h3>author</h3>
+      <img class="sidebar-face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
+      <p><strong>{{ site.name }}</strong><br><span class="t-key" style="color:var(--muted);font-size:13px;">bug bounty &amp; vuln research</span></p>
+      <p style="font-size:13px;color:var(--muted);">{{ site.about-description }}</p>
+    </div>
+    <div class="sidebar-widget">
+      <h3>blog stats</h3>
+      <ul class="sidebar-stats">
+        <li>Total posts <span class="val">{{ site.posts | size }}</span></li>
+        <li>Disclosures <span class="val">{{ site.data.disclosures | size }}</span></li>
+        <li>Since <span class="val">2016</span></li>
+      </ul>
+    </div>
+    <div class="sidebar-widget">
+      <h3>elsewhere</h3>
+      <ul class="sidebar-links">
+        <li><a href="https://hackerone.com/txt3rob">hackerone/txt3rob</a></li>
+        <li><a href="https://bugcrowd.com/txt3rob">bugcrowd/txt3rob</a></li>
+        <li><a href="https://github.com/random-robbie">github/random-robbie</a></li>
+        <li><a href="{{site.baseurl}}/feed.xml">rss feed</a></li>
+      </ul>
+    </div>
+  </aside>
 </div>

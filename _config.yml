@@ -4,7 +4,6 @@ description: About Security
 baseurl: "/"
 url: https://www.what-security.co.uk
 permalink: ':title/'
-blog_theme: light
 
 # Profile information
 name: Robert Wiggins

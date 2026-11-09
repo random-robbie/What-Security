@@ -112,11 +112,45 @@ htop --sort-key PERCENT_CPU
 </code></pre>
     </div>
 
-    <div class="contact-contaiver">
+    <div class="command-section">
+      <h3>✂️ Text Wrangler Regexes</h3>
+      <pre><code># Remove everything before the dot (and the dot itself) — handy
+# for trimming a list of subdomains down to their domain names
+^[^.]+.
+</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>🧰 Quick One-Liners</h3>
+      <pre><code># Base64 encode a string
+echo -n 'secret text' | base64
+
+# Base64 decode a string
+echo -n 'c2VjcmV0IHRleHQ=' | base64 -d
+
+# URL encode a string
+python3 -c "import urllib.parse; print(urllib.parse.quote('hello world?'))"
+
+# URL decode a string
+python3 -c "import urllib.parse; print(urllib.parse.unquote('hello%20world%3F'))"
+
+# Generate 32 bytes of random hex
+openssl rand -hex 32
+
+# Check a TLS certificate's expiry date
+echo | openssl s_client -connect target.com:443 2>/dev/null | openssl x509 -noout -enddate
+
+# Calculate MD5 and SHA-256 checksums of a file
+md5 file.iso
+shasum -a 256 file.iso
+
+# Strip ANSI colour codes from a log file
+sed 's/\x1b\[[0-9;]*m//g' colour.log > clean.log
+</code></pre>
+    </div>
+
+    <div class="command-section">
       <h3>📚 Additional Resources</h3>
-      <p>For more detailed Nmap techniques, check out my gist:</p>
-      <script src="https://gist.github.com/random-robbie/d356f7775d17efb57d03de0836c7f3d5.js"></script>
-      
       <p>Have a useful command to share? <a href="mailto:contact@what-security.co.uk">Send it to me!</a></p>
     </div>
   </div>

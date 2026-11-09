@@ -1,26 +1,79 @@
 ---
-title: fernet
+title: Fernet
 layout: default
 permalink: /fernet/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">Fernet Decode</h2>
+    <h1 class="page-title">fernet</h1>
+    <p class="page-intro">Decrypting Python Fernet tokens once you have recovered the signing key.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      How to decode Encrypted data using fernet key.
-      </div>
-    <div class="contact-contaiver">
-   
-         <script src="https://gist.github.com/random-robbie/db6672ab413b9240c70066146f513ae0.js"></script>
-        <br><br>
-       python3 fernet.py --fernet "HI3npMd4M2QpKugbmJ0G9L-OTm4sTuPg5cBLJxezDGM=" --val gAAAAABdiSLB87e6uZgSqU0i4Bm3TV0zMvDMfL-Xca8AaSSIt3PRXQbGCacFsNaFtWEs-ArD2C7DQDVUb1UjyN3tIBWbz2LbBQ==
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+    <h2>$ fernet-decrypt.py</h2>
+    <p>A minimal helper that takes a Fernet key and an encrypted value, decrypts it and prints the plaintext.</p>
+    <pre><code>#!/usr/bin/env python
+from cryptography.fernet import Fernet
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--fernet", required=True, help="Fernet Key")
+parser.add_argument("-v", "--val", required=True, help="Value to decode")
+args = parser.parse_args()
+
+KEY = args.fernet
+VAL = bytes(args.val, 'utf-8')
+
+def decrypt_message(encrypted_message, KEY):
+    """
+    Decrypts an encrypted message
+    """
+    f = Fernet(KEY)
+    decrypted_message = f.decrypt(encrypted_message)
+
+    print(decrypted_message.decode())
+
+if __name__ == "__main__":
+    decrypt_message(VAL, KEY)</code></pre>
+
+    <h2>$ usage</h2>
+    <pre><code># Install the library if it is missing
+pip3 install cryptography
+
+# Decrypt a token with the recovered key
+python3 fernet-decrypt.py -f "&lt;FERNET_KEY&gt;" -v "&lt;gAAAAA...&gt;"</code></pre>
+
+    <h2>$ identifying a Fernet token</h2>
+    <p>Fernet ciphertext is URL-safe base64 of a versioned structure, so real tokens always start with <code>gAAAAA</code> (version byte <code>0x80</code> followed by a timestamp). A token is typically 120&ndash;288 bytes: version, 8-byte timestamp, 16-byte IV, AES-128-CBC ciphertext (padded to 16-byte blocks) and a 32-byte HMAC-SHA256 signature, all base64-encoded.</p>
+    <pre><code># Spot tokens in source, logs and dumps
+grep -rE "gAAAAA[0-9A-Za-z_-]{80,}" . --exclude-dir=.git
+
+# Confirm the structure manually (version byte 0x80 then a unix timestamp)
+echo "&lt;token&gt;" | base64 -d | xxd | head -3</code></pre>
+
+    <h2>$ generating a key</h2>
+    <pre><code>python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"</code></pre>
+
+    <h2>$ decrypt without the script</h2>
+    <pre><code>python3 -c 'from cryptography.fernet import Fernet; print(Fernet(b"&lt;FERNET_KEY&gt;").decrypt(b"&lt;gAAAAA...&gt;").decode())'</code></pre>
+
+    <h2>$ where keys leak</h2>
+    <p>Fernet keys are usually baked into the application rather than generated at runtime, so hunt for them in:</p>
+    <pre><code># Environment variables and process environments
+cat /proc/&lt;pid&gt;/environ | tr '\0' '\n' | grep -i -E "fernet|secret|key"
+env | grep -i -E "fernet|crypt"
+
+# Config files
+grep -rE "SECRET_KEY|FERNET|ENCRYPTION" /etc /opt /srv /home 2&gt;/dev/null
+grep -rE "SECRET_KEY|FERNET" . --exclude-dir=.git
+
+# Committed secrets in git history
+git log -p | grep -iE "fernet|secret_key"
+git log --all --full-history -- "*settings*" "*config*"</code></pre>
+
+    <h2>$ key vs password</h2>
+    <p>A Fernet key is a full 128-bit AES key plus signing key encoded as 44 base64 characters &mdash; there is no password derivation and no KDF. Brute-forcing is pointless: the keyspace is 2<sup>126</sup>-ish, so you cannot guess it. The attack is reconnaissance: <strong>find</strong> the key in the source, config, environment or git history, then decrypt. If a Fernet key is generated with <code>Fernet.generate_key()</code> at startup and never stored, decryption of old data may be impossible &mdash; but a hard-coded or committed key is effectively a plaintext secret.</p>
   </div>
 </div>

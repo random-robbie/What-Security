@@ -1,23 +1,363 @@
 ---
-title: nmap
+title: Nmap
 layout: default
 permalink: /nmap/
 ---
 
-<div class="home">
+<div class="wrapper">
   <div class="page-heading">
-    <h2 class="page-title">nmap</h2>
+    <h1 class="page-title">nmap</h1>
+    <p class="page-intro">A collection of Nmap NSE scripts and commands for brute-forcing and enumerating network services.</p>
   </div>
-  <div class="about">
-    <div class="container-face">
-      <img class="face" src="{{site.baseurl}}/assets/img/{% if site.pic %}{{ site.pic }}{% else %}github.jpg{% endif %}" alt="">
-    </div>
-    <h2 class="tagline">{% if site.tagline %}{{site.tagline}}{% else %}{% endif %}</h2>
-    <div class="about-description">
-      <p>Some fun nmap commands.</p>
-    </div>
-    <div class="contact-contaiver">
-      <script src="https://gist.github.com/random-robbie/0efd3b343c8e4d84c09ef6ae202bb791.js"></script>
-    </div>
+
+  <div class="post-content" style="max-width: 860px;">
+
+    <h2>$ host discovery first</h2>
+    <p>Before brute-forcing anything, work out which hosts are actually up. A ping sweep with <code>-sn</code> skips port scanning entirely, so it is fast and quiet.</p>
+    <pre><code># Ping sweep a subnet (no port scan)
+nmap -sn 192.168.1.0/24
+
+# Ping sweep with a list of targets from a file
+nmap -sn -iL targets.txt
+
+# Skip host discovery entirely (useful when ICMP is blocked)
+nmap -Pn &lt;target&gt;</code></pre>
+
+    <h2>$ fast scans with top ports</h2>
+    <pre><code># Scan the 1000 most common TCP ports (default)
+nmap &lt;target&gt;
+
+# Scan the top 100 ports — much faster, still finds most services
+nmap --top-ports 100 &lt;target&gt;
+
+# Scan the top 20 ports for a very quick triage
+nmap --top-ports 20 &lt;target&gt;
+
+# Fast scan: fewer probes, no fragmentation, parallel groups
+nmap -F &lt;target&gt;
+
+# Full TCP SYN scan of every port (slow but thorough)
+nmap -sS -p- &lt;target&gt;
+
+# Speed up a full scan with a bigger min-rate
+nmap -sS -p- --min-rate 5000 &lt;target&gt;</code></pre>
+
+    <h2>$ service version and default script detection</h2>
+    <pre><code># Detect service versions on open ports
+nmap -sV &lt;target&gt;
+
+# Version detection with the default script set (common combos)
+nmap -sV -sC &lt;target&gt;
+
+# Aggressive scan: OS detection, version detection, script scanning and traceroute
+nmap -A &lt;target&gt;
+
+# Only run version detection against a specific port
+nmap -sV -p 3306 &lt;target&gt;</code></pre>
+
+    <h2>$ database services</h2>
+    <p>MySQL on 3306, Microsoft SQL on 1433, PostgreSQL on 5432, MongoDB on 27017, Redis on 6379, Cassandra on 9160 and Oracle on 1521 all have dedicated NSE scripts.</p>
+    <pre><code># Basic MySQL brute force
+nmap --script=mysql-brute &lt;target&gt;
+
+# MySQL brute force with custom credentials
+nmap --script=mysql-brute --script-args userdb=/path/to/users.txt,passdb=/path/to/passwords.txt &lt;target&gt;
+
+# MySQL enum
+nmap -p 3306 --script mysql-enum &lt;target&gt;
+
+# MySQL users enum
+nmap -p 3306 --script mysql-users --script-args="mysqluser='root',mysqlpass='password'" &lt;target&gt;
+
+# MySQL databases enum
+nmap -p 3306 --script mysql-databases --script-args="mysqluser='root',mysqlpass='password'" &lt;target&gt;
+
+# MySQL hashdump
+nmap -p 3306 --script mysql-dump-hashes --script-args="username='root',password='password'" &lt;target&gt;
+
+# MS SQL brute force
+nmap -p 1433 --script ms-sql-brute &lt;target&gt;
+
+# MS SQL empty password check
+nmap -p 1433 --script ms-sql-empty-password &lt;target&gt;
+
+# MS SQL xp_cmdshell command execution (requires credentials)
+nmap -p 1433 --script ms-sql-xp-cmdshell --script-args mssql.username=sa,mssql.password=sa,ms-sql-xp-cmdshell.cmd="ipconfig" &lt;target&gt;
+
+# MS SQL information gathering
+nmap -p 1433 --script ms-sql-info,ms-sql-ntlm-info,ms-sql-empty-password &lt;target&gt;
+
+# MS SQL dump hashes
+nmap -p 1433 --script ms-sql-dump-hashes --script-args mssql.username=sa,mssql.password=password &lt;target&gt;
+
+# PostgreSQL brute force
+nmap -p 5432 --script pgsql-brute &lt;target&gt;
+
+# PostgreSQL brute force with specific credentials
+nmap -p 5432 --script pgsql-brute --script-args userdb=/path/to/users.txt,passdb=/path/to/passwords.txt &lt;target&gt;
+
+# PostgreSQL info gathering
+nmap -p 5432 --script pgsql-info &lt;target&gt;
+
+# MongoDB brute force
+nmap -p 27017 --script mongodb-brute &lt;target&gt;
+
+# MongoDB info gathering
+nmap -p 27017 --script mongodb-info &lt;target&gt;
+
+# MongoDB database list (no auth)
+nmap -p 27017 --script mongodb-databases &lt;target&gt;
+
+# MongoDB database list (with auth)
+nmap -p 27017 --script mongodb-databases --script-args="mongodb-databases.username='admin',mongodb-databases.password='password'" &lt;target&gt;
+
+# Redis brute force
+nmap -p 6379 --script redis-brute &lt;target&gt;
+
+# Redis info gathering
+nmap -p 6379 --script redis-info &lt;target&gt;
+
+# Redis key enumeration
+nmap -p 6379 --script redis-keys &lt;target&gt;
+
+# Cassandra brute force
+nmap -p 9160 --script=cassandra-brute &lt;target&gt;
+
+# Cassandra info gathering
+nmap -p 9160 --script=cassandra-info &lt;target&gt;
+
+# Oracle SID enumeration
+nmap -p 1521 --script oracle-sid-brute &lt;target&gt;
+
+# Oracle brute force
+nmap -p 1521 --script oracle-brute --script-args oracle-brute.sid=ORCL &lt;target&gt;
+
+# Oracle TNS version
+nmap -p 1521 --script oracle-tns-version &lt;target&gt;</code></pre>
+
+    <h2>$ web services</h2>
+    <pre><code># AJP Tomcat brute force
+nmap -p 8009 --script ajp-brute &lt;target&gt;
+
+# Tomcat manager brute force (HTTP)
+nmap -p 8080 --script http-tomcat-manager-brute &lt;target&gt;
+
+# Tomcat default credentials check
+nmap -p 8080 --script http-default-accounts --script-args http-default-accounts.category=web &lt;target&gt;
+
+# WordPress brute force
+nmap -p 80 --script http-wordpress-brute &lt;target&gt;
+
+# WordPress user enumeration
+nmap -p 80 --script http-wordpress-enum &lt;target&gt;
+
+# Joomla brute force
+nmap -p 80 --script http-joomla-brute &lt;target&gt;
+
+# Drupal brute force
+nmap -p 80 --script http-form-brute --script-args http-form-brute.path=/drupal/,http-form-brute.method=POST,http-form-brute.form=form_id:user_login_form&amp;name:^USER^&amp;pass:^PASS^&amp;op:Log+in &lt;target&gt;</code></pre>
+
+    <h2>$ email services</h2>
+    <pre><code># POP3 brute force
+nmap -sV --script=pop3-brute &lt;target&gt;
+
+# POP3 capabilities check
+nmap -p 110 --script pop3-capabilities &lt;target&gt;
+
+# POP3 with specific credentials
+nmap -p 110 --script pop3-brute --script-args userdb=/path/to/users.txt,passdb=/path/to/passwords.txt &lt;target&gt;
+
+# IMAP brute force
+nmap -p 143 --script imap-brute &lt;target&gt;
+
+# IMAP capabilities
+nmap -p 143 --script imap-capabilities &lt;target&gt;
+
+# SMTP brute force
+nmap -p 25 --script smtp-brute &lt;target&gt;
+
+# SMTP user enumeration
+nmap -p 25 --script smtp-enum-users &lt;target&gt;
+
+# SMTP commands
+nmap -p 25 --script smtp-commands &lt;target&gt;</code></pre>
+
+    <h2>$ network protocols</h2>
+    <pre><code># SNMP brute force (community strings)
+nmap -sU --script snmp-brute &lt;target&gt;
+
+# SNMP with custom communities list
+nmap -sU -p 161 --script snmp-brute --script-args snmp-brute.communitiesdb=/path/to/communities.txt &lt;target&gt;
+
+# SNMP information gathering (with known community)
+nmap -sU -p 161 --script snmp-info --script-args snmp-info.community=public &lt;target&gt;
+
+# SNMP system processes
+nmap -sU -p 161 --script snmp-processes --script-args snmp-processes.community=public &lt;target&gt;
+
+# SSH brute force
+nmap -p 22 --script ssh-brute --script-args userdb=/path/to/users.txt,passdb=/path/to/passwords.txt &lt;target&gt;
+
+# SSH host key enumeration
+nmap -p 22 --script ssh-hostkey &lt;target&gt;
+
+# SSH authorised keys
+nmap -p 22 --script ssh-auth-methods &lt;target&gt;
+
+# SIP brute force
+nmap -sU -p 5060 --script=sip-brute &lt;target&gt;
+
+# SIP methods enumeration
+nmap -sU -p 5060 --script=sip-methods &lt;target&gt;
+
+# RDP NTLM information
+nmap -p 3389 --script rdp-ntlm-info &lt;target&gt;
+
+# RDP security check
+nmap -p 3389 --script rdp-enum-encryption &lt;target&gt;
+
+# FTP brute force
+nmap -p 21 --script ftp-brute &lt;target&gt;
+
+# FTP anonymous login
+nmap -p 21 --script ftp-anon &lt;target&gt;
+
+# FTP bounce (scan through FTP server)
+nmap -b anonymous:password@&lt;ftp_target&gt; &lt;scan_target&gt;
+
+# SMB brute force
+nmap -p 445 --script smb-brute &lt;target&gt;
+
+# SMB OS discovery
+nmap -p 445 --script smb-os-discovery &lt;target&gt;
+
+# SMB security mode
+nmap -p 445 --script smb-security-mode &lt;target&gt;
+
+# SMB enum shares
+nmap -p 445 --script smb-enum-shares &lt;target&gt;
+
+# SMB enum users
+nmap -p 445 --script smb-enum-users &lt;target&gt;</code></pre>
+
+    <h2>$ other services</h2>
+    <pre><code># RTSP URL brute force (media streaming)
+nmap --script rtsp-url-brute -p 554 &lt;target&gt;
+
+# RTSP methods
+nmap --script rtsp-methods -p 554 &lt;target&gt;
+
+# XMPP (Jabber) brute force
+nmap -p 5222 --script xmpp-brute &lt;target&gt;
+
+# XMPP info
+nmap -p 5222 --script xmpp-info &lt;target&gt;
+
+# IPMI brute force
+nmap -sU -p 623 --script ipmi-brute &lt;target&gt;
+
+# IPMI version and cipher suites
+nmap -sU -p 623 --script ipmi-version &lt;target&gt;
+
+# LDAP brute force
+nmap -p 389 --script ldap-brute &lt;target&gt;
+
+# LDAP search
+nmap -p 389 --script ldap-search &lt;target&gt;
+
+# LDAP rootDSE
+nmap -p 389 --script ldap-rootdse &lt;target&gt;
+
+# DNS brute force subdomains
+nmap --script dns-brute &lt;domain&gt;
+
+# DNS zone transfer
+nmap --script dns-zone-transfer --script-args dns-zone-transfer.domain=&lt;domain&gt; &lt;target&gt;</code></pre>
+
+    <h2>$ NSE vulnerability scanning</h2>
+    <p>The <code>vuln</code> category runs scripts that check for known CVEs. Combine it with version detection so the scripts have good fingerprints to work from.</p>
+    <pre><code># Run every script in the vuln category
+nmap -sV --script vuln &lt;target&gt;
+
+# Vuln scanning on a specific port
+nmap -sV -p 3306 --script vuln &lt;target&gt;
+
+# Check for a specific class of weakness, e.g. brute-forcing and auth bypass
+nmap --script "auth or brute" &lt;target&gt;
+
+# List all available NSE scripts matching a pattern
+nmap --script-help "mysql*"</code></pre>
+
+    <h2>$ timing templates</h2>
+    <p><code>-T0</code> (paranoid) through <code>-T5</code> (insane) control scan speed. <code>-T4</code> is the usual choice for internal networks; <code>-T5</code> can produce unreliable results.</p>
+    <pre><code># Aggressive timing — fast, still reliable on a LAN
+nmap -T4 &lt;target&gt;
+
+# Insane timing — may miss services or get filtered
+nmap -T5 &lt;target&gt;
+
+# Very slow and quiet: evade rate-based IDS alerts
+nmap -T1 --max-retries 1 &lt;target&gt;
+
+# Slow scan with randomised host order to blend in
+nmap -T2 --randomize-hosts -iL targets.txt</code></pre>
+
+    <h2>$ output formats</h2>
+    <pre><code># Save results in all three formats at once (normal, XML, grepable)
+nmap -oA scan_results &lt;target&gt;
+
+# Normal output to file
+nmap -oN output.txt &lt;target&gt;
+
+# XML output (good for importing into other tools)
+nmap -oX output.xml &lt;target&gt;
+
+# Grepable output (good for quick pipelines)
+nmap -oG output.grep &lt;target&gt;
+
+# Increase verbosity and show debugging detail
+nmap -v -d &lt;target&gt;</code></pre>
+
+    <h2>$ port range tricks</h2>
+    <pre><code># Scan specific ports and ranges
+nmap -p 22,80,443,3306-3310 &lt;target&gt;
+
+# Scan all UDP ports (slow — narrow it down)
+nmap -sU -p 53,161,623,5060 &lt;target&gt;
+
+# Combine TCP and UDP in one sweep
+nmap -sS -sU -p T:22,80,U:53,161 &lt;target&gt;
+
+# Scan ports excluding noisy ranges
+nmap -p- --exclude-ports 9100-9102 &lt;target&gt;
+
+# Source port spoofing — sometimes slips past naive firewall rules
+nmap --source-port 53 &lt;target&gt;</code></pre>
+
+    <h2>$ wordlists and hydra</h2>
+    <pre><code># Generate custom wordlist from a website
+cewl -d 2 -m 5 http://target.com -w wordlist.txt
+
+# Extract words from files in current directory
+grep -r -a -o "\w\{5,\}" . | sort -u &gt; wordlist.txt
+
+# Generate username variations
+john --wordlist=names.txt --rules=Wordlist --stdout &gt; usernames.txt
+
+# HTTP POST form brute force with hydra
+hydra -l admin -P /path/to/passwords.txt &lt;target&gt; http-post-form "/login.php:username=^USER^&amp;password=^PASS^:F=Login failed"
+
+# SSH
+hydra -L /path/to/users.txt -P /path/to/passwords.txt &lt;target&gt; ssh
+
+# FTP
+hydra -l admin -P /path/to/passwords.txt &lt;target&gt; ftp
+
+# MySQL
+hydra -l root -P /path/to/passwords.txt &lt;target&gt; mysql
+
+# RDP
+hydra -L /path/to/users.txt -P /path/to/passwords.txt &lt;target&gt; rdp</code></pre>
+
   </div>
 </div>

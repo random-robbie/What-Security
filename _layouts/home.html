@@ -11,8 +11,8 @@ layout: default
       <h1 class="hero-name">{{ site.name | split: " " | first }}<br>{{ site.name | split: " " | last }}</h1>
       <p class="hero-bio">{{ site.tagline }} Bug bounty hunter and vulnerability researcher — disclosed findings to Apple, Google, AT&amp;T, Dell and more. If my domain shows up in your logs, that's legitimate security research.</p>
       <div class="hero-actions">
-        <a class="term-btn primary" href="{{site.baseurl}}/media/">ls disclosures/</a>
-        <a class="term-btn" href="{{site.baseurl}}/cli/">cat cli-tips.txt</a>
+        <a class="term-btn primary" href="{{ "/media/">ls disclosures/</a>
+        <a class="term-btn" href="{{site.baseurl" | relative_url }}/cli/">cat cli-tips.txt</a>
       </div>
       <div class="hero-stats">
         <div><div class="stat-value">{{ site.data.disclosures | size }}</div><div class="stat-label">disclosures</div></div>
@@ -39,10 +39,10 @@ layout: default
 
 <section class="section">
   <div class="wrapper">
-    <a class="section-more" href="{{site.baseurl}}/media/">&gt; more coverage</a>
+    <a class="section-more" href="{{ "/media/">&gt; more coverage</a>
     <p class="section-kicker">ls disclosures/</p>
     <h2 class="section-title">Recent <span class="dot">coverage.</span></h2>
-    <p class="section-sub">Security findings written up by the press. Full archive on the <a href="{{site.baseurl}}/media/">media page</a>.</p>
+    <p class="section-sub">Security findings written up by the press. Full archive on the <a href="{{site.baseurl" | relative_url }}/media/">media page</a>.</p>
     <div class="card-grid">
       {% for item in site.data.disclosures %}
         {% if item.featured %}

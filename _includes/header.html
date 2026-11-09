@@ -1,15 +1,15 @@
 <header class="site-header">
   <div class="wrapper">
-    <a href="{{site.baseurl}}/" class="logo-link">What-Security</a>
+    <a href="{{ "/" | relative_url }}" class="logo-link">What-Security</a>
     <nav class="main-menu">
       <ul>
-        <li><a href="{{site.baseurl}}/"><span class="key">[ x ]</span>Home</a></li>
-        <li><a href="{{site.baseurl}}/cli/"><span class="key">[ &gt;_ ]</span>CLI Tips</a></li>
-        <li><a href="{{site.baseurl}}/projects/"><span class="key">[ &lt;&gt; ]</span>Projects</a></li>
-        <li><a href="{{site.baseurl}}/lab/"><span class="key">[ * ]</span>Lab</a></li>
-        <li><a href="{{site.baseurl}}/media/"><span class="key">[ // ]</span>Media</a></li>
-        <li><a href="{{site.baseurl}}/howto/"><span class="key">[ ? ]</span>How to</a></li>
-        <li><a href="{{site.baseurl}}/about/"><span class="key">[ ~ ]</span>About</a></li>
+        <li {% if page.url == "/" %}class="active"{% endif %}><a href="{{ "/" | relative_url }}">Home</a></li>
+        <li {% if page.url == "/cli/" %}class="active"{% endif %}><a href="{{ "/cli/" | relative_url }}">CLI Tips</a></li>
+        <li {% if page.url == "/projects/" %}class="active"{% endif %}><a href="{{ "/projects/" | relative_url }}">Projects</a></li>
+        <li {% if page.url == "/lab/" %}class="active"{% endif %}><a href="{{ "/lab/" | relative_url }}">Lab</a></li>
+        <li {% if page.url == "/media/" %}class="active"{% endif %}><a href="{{ "/media/" | relative_url }}">Media</a></li>
+        <li {% if page.url == "/howto/" %}class="active"{% endif %}><a href="{{ "/howto/" | relative_url }}">How to</a></li>
+        <li {% if page.url == "/about/" %}class="active"{% endif %}><a href="{{ "/about/" | relative_url }}">About</a></li>
       </ul>
     </nav>
     <div class="theme-dots" title="Switch color theme">

@@ -3,10 +3,10 @@
   "use strict";
 
   var THEMES = ["matrix", "dracula", "nord", "gruvbox", "mono"];
-  var PAGER = "robbie@what-security";
+  var PAGER = "rob@what-security";
   var DATA = {
     whoami: {
-      name: "Robert 'Robbie' Wiggins",
+      name: "Robbie Wiggins",
       role: "bug bounty hunter & vulnerability researcher",
       email: "rob@what-security.co.uk",
       handle: "txt3rob (HackerOne / Bugcrowd)",

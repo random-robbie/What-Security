@@ -1,3 +1,17 @@
+- title: "Hotel giant Wyndham exposed customer data after app security lapse"
+  source: TechCrunch
+  url: https://techcrunch.com/2026/11/09/hotel-giant-wyndham-exposed-customer-data-after-app-security-lapse/
+  date: 2026-11-09
+  featured: true
+  summary: "A password hardcoded in the Wyndham Android app opened an internal Salesforce database holding customer names, email addresses, rewards member numbers and login tokens, with millions of entries."
+- title: "Wyndham Hotels & Resorts confirmed app bug that exposed customer data"
+  source: Neowin
+  url: https://www.neowin.net/news/wyndham-hotels--resorts-confirmed-app-bug-that-exposed-customer-data/
+  date: 2026-11-09
+- title: "Wyndham confirmed customer data exposure after password found in Android app"
+  source: Atlabyte
+  url: https://atlabyte.com/en/news/wyndham-confirmed-customer-data-exposure-after-password-found-in-android-app
+  date: 2026-11-09
 - title: "Applebee's exposed customers' personal data after leaving database password in app"
   source: TechCrunch
   url: https://techcrunch.com/2026/10/30/applebees-exposed-customers-personal-data-after-leaving-database-password-in-app/
